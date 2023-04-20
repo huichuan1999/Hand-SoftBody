@@ -93,6 +93,14 @@ function setup() {
 function draw() {
   clear();
 
+  // 翻转摄像头画面
+  translate(width, 0);
+  scale(-1, 1);
+  //image(videoElement, 0, 0, width, height);
+
+  
+
+
   if (detections != undefined) {
     if (detections.multiHandLandmarks != undefined) {
 
@@ -152,8 +160,9 @@ function draw() {
 
   drawSoftBody();
 
-
-
+  // 将画布翻转回来
+  translate(width, 0);
+  scale(-1, 1);
 }
 
 function drawSoftBody() {
@@ -202,6 +211,17 @@ function drawSoftBody() {
         y: (landmarkCoordinates[8].y + landmarkCoordinates[4].y) / 2
       };
 
+      // flippedpointX = width - midpoint.x;
+      // flippedpointY = midpoint.y;
+
+      // fill(255, 0, 0);
+      // noStroke();
+      // ellipse(flippedpointX, flippedpointY, 20, 20);
+      // particles[1].lock();
+      // particles[1].x = flippedpointX;
+      // particles[1].y = flippedpointY;
+      // particles[1].unlock();
+
       fill(255, 0, 0);
       noStroke();
       ellipse(midpoint.x, midpoint.y, 20, 20);
@@ -209,13 +229,33 @@ function drawSoftBody() {
       particles[1].x = midpoint.x;
       particles[1].y = midpoint.y;
       particles[1].unlock();
+
     }
   }
 
-
 }
 
+function getLandmarkCoordinates(indexArray, detections) {
+  const coordinates = {};
+  if (detections != undefined && detections.multiHandLandmarks != undefined) {
+    for (let i = 0; i < detections.multiHandLandmarks.length; i++) {
+      for (let j = 0; j < indexArray.length; j++) {
+        let index = indexArray[j];
+        let x = detections.multiHandLandmarks[i][index].x * width;
+        let y = detections.multiHandLandmarks[i][index].y * height;
+        coordinates[index] = { x, y };
+      }
+    }
+  }
+  return coordinates;
+}
 
+function calculateDistance(pointA, pointB) {
+  const deltaX = pointA.x - pointB.x;
+  const deltaY = pointA.y - pointB.y;
+  //求平方根 三角函数
+  return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+}
 
 function drawTestC(index, hue, size) { //画会变色的圆圈
   stroke(0, 0, 255);
@@ -387,26 +427,6 @@ function drawHandsTest() {
 
 //}
 
-function getLandmarkCoordinates(indexArray, detections) {
-  const coordinates = {};
-  if (detections != undefined && detections.multiHandLandmarks != undefined) {
-    for (let i = 0; i < detections.multiHandLandmarks.length; i++) {
-      for (let j = 0; j < indexArray.length; j++) {
-        let index = indexArray[j];
-        let x = detections.multiHandLandmarks[i][index].x * width;
-        let y = detections.multiHandLandmarks[i][index].y * height;
-        coordinates[index] = { x, y };
-      }
-    }
-  }
-  return coordinates;
-}
 
-function calculateDistance(pointA, pointB) {
-  const deltaX = pointA.x - pointB.x;
-  const deltaY = pointA.y - pointB.y;
-  //求平方根 三角函数
-  return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-}
 
 //let myp5 = new p5(sketch);
