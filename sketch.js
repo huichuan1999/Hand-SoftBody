@@ -151,6 +151,9 @@ function draw() {
   }
 
   drawSoftBody();
+
+
+
 }
 
 function drawSoftBody() {
@@ -176,26 +179,36 @@ function drawSoftBody() {
   //     spring.show();
   //   }
   if (mouseIsPressed) { //改成：如果手捏合了/如果检测到手的某一个节点
-    particles[1].lock();
-    particles[1].x = mouseX;
-    particles[1].y = mouseY;
-    particles[1].unlock();
+    // particles[1].lock();
+    // particles[1].x = mouseX;
+    // particles[1].y = mouseY;
+    // particles[1].unlock();
   }
 
   //如果探测到手
-  if (detections != undefined) {
-    if (detections.multiHandLandmarks != undefined) {
-      //与手的交互
-      //可以写一个get landmark的函数？返回值为一个vec2
-      // for (let i = 0; i < detections.multiHandLandmarks.length; i++) {
-      //   //for (let j = 0; j < index.length - 1; j++) {
-      //     let x = detections.multiHandLandmarks[i][index[8]].x * width;
-      //     let y = detections.multiHandLandmarks[i][index[8]].y * height;
-      //     let z = detections.multiHandLandmarks[i][index[8]].z;
+  const landmarkIndices = [8, 4];
+  const landmarkCoordinates = getLandmarkCoordinates(landmarkIndices, detections);
 
-      //     ellipse(x, y, 50);
-      //   //}
-      // }
+  if (landmarkCoordinates[8] && landmarkCoordinates[4]) {
+    const distance = calculateDistance(landmarkCoordinates[8], landmarkCoordinates[4]);
+
+    // 根据实际情况调整捏合阈值
+    const pinchThreshold = 30;
+
+    if (distance < pinchThreshold) {
+      // 捏合动作发生
+      const midpoint = {
+        x: (landmarkCoordinates[8].x + landmarkCoordinates[4].x) / 2,
+        y: (landmarkCoordinates[8].y + landmarkCoordinates[4].y) / 2
+      };
+
+      fill(255, 0, 0);
+      noStroke();
+      ellipse(midpoint.x, midpoint.y, 20, 20);
+      particles[1].lock();
+      particles[1].x = midpoint.x;
+      particles[1].y = midpoint.y;
+      particles[1].unlock();
     }
   }
 
@@ -374,4 +387,26 @@ function drawHandsTest() {
 
 //}
 
-let myp5 = new p5(sketch);
+function getLandmarkCoordinates(indexArray, detections) {
+  const coordinates = {};
+  if (detections != undefined && detections.multiHandLandmarks != undefined) {
+    for (let i = 0; i < detections.multiHandLandmarks.length; i++) {
+      for (let j = 0; j < indexArray.length; j++) {
+        let index = indexArray[j];
+        let x = detections.multiHandLandmarks[i][index].x * width;
+        let y = detections.multiHandLandmarks[i][index].y * height;
+        coordinates[index] = { x, y };
+      }
+    }
+  }
+  return coordinates;
+}
+
+function calculateDistance(pointA, pointB) {
+  const deltaX = pointA.x - pointB.x;
+  const deltaY = pointA.y - pointB.y;
+  //求平方根 三角函数
+  return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+}
+
+//let myp5 = new p5(sketch);
