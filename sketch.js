@@ -10,6 +10,7 @@ const { Vec2D, Rect } = toxi.geom;
 let physics;
 let particles = [];
 let springs = [];
+let eyes = [];
 
 // let imgPosX = 0;
 // let imgPosY = 0;
@@ -30,25 +31,63 @@ function setup() {
   physics.setWorldBounds(bounds);
 
   //把关键点全都写上去，在这里画我的怪东西
+  {
+    particles.push(new Particle(280, 145));
+    particles.push(new Particle(390, 120));
+    particles.push(new Particle(395, 228));
+    particles.push(new Particle(340, 228));
+    particles.push(new Particle(420, 350));
+    particles.push(new Particle(390, 400));
+    particles.push(new Particle(320, 380));
+    particles.push(new Particle(300, 350));
+    particles.push(new Particle(255, 400));
+    particles.push(new Particle(222, 350));
+    particles.push(new Particle(300, 228));
+    particles.push(new Particle(248, 228));
+    particles.push(new Particle(248, 120));
+    particles.push(new Particle(280, 120));
 
-  particles.push(new Particle(200, 100));
-  particles.push(new Particle(400, 100));
-  particles.push(new Particle(350, 200));
-  particles.push(new Particle(400, 300));
-  particles.push(new Particle(200, 300));
-  particles.push(new Particle(250, 200));
+    //eyes
+    eyes.push(new Particle(300, 200));
+    eyes.push(new Particle(360, 200));
 
-  //每一条直线都是弹簧。可以把它们连起来，也可以不连，为了更有意思
+    //弹簧绕表面一圈
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        if (i !== j) {
+          let a = particles[i];
+          let b = particles[j];
+          // let b = particles[(i + 1) % particles.length];
+          springs.push(new Spring(a, b, 0.001));
+        }
+      }
+    }
 
-  springs.push(new Spring(particles[0], particles[1], 0.01));
-  springs.push(new Spring(particles[1], particles[2], 0.01));
-  springs.push(new Spring(particles[2], particles[3], 0.01));
-  springs.push(new Spring(particles[3], particles[4], 0.01));
-  springs.push(new Spring(particles[4], particles[5], 0.01));
-  springs.push(new Spring(particles[5], particles[0], 0.01));
-  springs.push(new Spring(particles[5], particles[2], 1));
-  springs.push(new Spring(particles[0], particles[3], 0.01));
-  springs.push(new Spring(particles[1], particles[4], 0.01));
+    for (let particle of particles) {
+      springs.push(new Spring(particle, eyes[0], 0.01));
+      springs.push(new Spring(particle, eyes[1], 0.01));
+    }
+
+    //内部支撑 
+    // springs.push(new Spring(particles[0], particles[11], 0.01));
+    // springs.push(new Spring(particles[0], particles[10], 0.01));
+    // springs.push(new Spring(particles[1], particles[11], 1));
+    // springs.push(new Spring(particles[1], particles[3], 0.01));
+    // springs.push(new Spring(particles[2], particles[12], 0.01));
+    // springs.push(new Spring(particles[3], particles[7], 0.01));
+    // springs.push(new Spring(particles[3], particles[10], 0.01));
+    // springs.push(new Spring(particles[3], particles[8], 0.01));
+    // springs.push(new Spring(particles[4], particles[9], 0.01));
+    // springs.push(new Spring(particles[5], particles[3], 0.01));
+    // springs.push(new Spring(particles[5], particles[10], 0.01));
+    // springs.push(new Spring(particles[6], particles[3], 0.01));
+    // springs.push(new Spring(particles[7], particles[10], 0.01));
+    // springs.push(new Spring(particles[8], particles[10], 0.01));
+    // springs.push(new Spring(particles[1], particles[9], 0.01));
+    // springs.push(new Spring(particles[4], particles[12], 0.01));
+    // springs.push(new Spring(particles[11], particles[13], 0.01));
+  }
+
 }
 
 function draw() {
@@ -127,21 +166,22 @@ function drawSoftBody() {
   }
   endShape(CLOSE);
 
-  for (let particle of particles) {
-    particle.show();
-  }
+  //   for (let particle of particles) {
+  //     particle.show();
+  //   }
+  eyes[0].show();
+  eyes[1].show();
 
-  for (let spring of springs) {
-    spring.show();
-  }
-
+  //   for (let spring of springs) {
+  //     spring.show();
+  //   }
   if (mouseIsPressed) { //改成：如果手捏合了/如果检测到手的某一个节点
-    particles[0].lock();
-    particles[0].x = mouseX;
-    particles[0].y = mouseY;
-    particles[0].unlock();
+    particles[1].lock();
+    particles[1].x = mouseX;
+    particles[1].y = mouseY;
+    particles[1].unlock();
   }
-  
+
   //如果探测到手
   if (detections != undefined) {
     if (detections.multiHandLandmarks != undefined) {
@@ -152,7 +192,7 @@ function drawSoftBody() {
       //     let x = detections.multiHandLandmarks[i][index[8]].x * width;
       //     let y = detections.multiHandLandmarks[i][index[8]].y * height;
       //     let z = detections.multiHandLandmarks[i][index[8]].z;
-          
+
       //     ellipse(x, y, 50);
       //   //}
       // }
