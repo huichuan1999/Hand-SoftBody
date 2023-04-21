@@ -19,7 +19,7 @@ let eyes = [];
 
 //let sketch = function (p) {
 function setup() {
-  canvas = createCanvas(640, 480);
+  canvas = createCanvas(1920,1080);
   canvas.id("canvas");
 
   colorMode(HSB, 255);
@@ -27,7 +27,7 @@ function setup() {
 
   physics = new VerletPhysics2D();
 
-  let bounds = new Rect(0, 0, width, height);
+  let bounds = new Rect(0, 0, 1920, 1080);
   physics.setWorldBounds(bounds);
 
   //把关键点全都写上去，在这里画我的怪东西
@@ -94,11 +94,9 @@ function draw() {
   clear();
 
   // 翻转摄像头画面
-  translate(width, 0);
-  scale(-1, 1);
-  //image(videoElement, 0, 0, width, height);
+  // translate(width, 0);
+  // scale(-1, 1);
 
-  
 
 
   if (detections != undefined) {
@@ -161,8 +159,8 @@ function draw() {
   drawSoftBody();
 
   // 将画布翻转回来
-  translate(width, 0);
-  scale(-1, 1);
+  // translate(width, 0);
+  // scale(-1, 1);
 }
 
 function drawSoftBody() {
@@ -202,7 +200,7 @@ function drawSoftBody() {
     const distance = calculateDistance(landmarkCoordinates[8], landmarkCoordinates[4]);
 
     // 根据实际情况调整捏合阈值
-    const pinchThreshold = 30;
+    const pinchThreshold = 50;
 
     if (distance < pinchThreshold) {
       // 捏合动作发生
