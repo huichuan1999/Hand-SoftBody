@@ -15,8 +15,8 @@ let springs = [];
 let eyes = [];
 
 // thread 尾巴
-let physicTail;
-let particleString;
+let physicTail1, physicTail2, physicTail3;
+let particleString1, particleString2, particleString3;
 let tail;
 let isTailLocked = false;
 
@@ -31,11 +31,16 @@ function setup() {
   //rectMode(CENTER);
 
   physics = new VerletPhysics2D();
-  physicTail = new VerletPhysics2D();
+  physicTail1 = new VerletPhysics2D();
+  physicTail2 = new VerletPhysics2D();
+  physicTail3 = new VerletPhysics2D();
+
 
   let bounds = new Rect(0, 0, canvasWidth, canvasHeight);
   physics.setWorldBounds(bounds);
-  physicTail.setWorldBounds(bounds);
+  physicTail1.setWorldBounds(bounds);
+  physicTail2.setWorldBounds(bounds);
+  physicTail3.setWorldBounds(bounds);
 
   //把关键点全都写上去，在这里画我的怪东西
   {
@@ -97,9 +102,18 @@ function setup() {
   //set up tails
 
   const stepDirection = new toxi.geom.Vec2D(1, 1).normalizeTo(10);
-  particleString = new ParticleString(physicTail, new toxi.geom.Vec2D(), stepDirection, 125, 1, 0.1);
-  particleString.particles[0].lock();
-  tail = particleString.particles[particleString.particles.length - 1];
+
+  particleString1 = new ParticleString(physicTail1, new toxi.geom.Vec2D(), stepDirection, 125, 1, 0.1);
+  particleString1.particles[0].lock();
+  tail = particleString1.particles[particleString1.particles.length - 1];
+
+  particleString2 = new ParticleString(physicTail2, new toxi.geom.Vec2D(), stepDirection, 125, 1, 0.1);
+  particleString2.particles[0].lock();
+  tail = particleString2.particles[particleString2.particles.length - 1];
+
+  particleString3 = new ParticleString(physicTail3, new toxi.geom.Vec2D(), stepDirection, 125, 1, 0.1);
+  particleString3.particles[0].lock();
+  tail = particleString3.particles[particleString3.particles.length - 1];
 
 }
 
@@ -169,9 +183,17 @@ function draw() {
   drawSoftBody();
 
   //draw tail
-  particleString.particles[0].set(particles[6]);
-  physicTail.update();
-  particleString.display();
+  particleString1.particles[0].set(particles[5]);
+  physicTail1.update();
+  particleString1.display();
+
+  particleString2.particles[0].set(particles[6]);
+  physicTail2.update();
+  particleString2.display();
+
+  particleString3.particles[0].set(particles[8]);
+  physicTail3.update();
+  particleString3.display();
 
   // 将画布翻转回来
   // translate(width, 0);
