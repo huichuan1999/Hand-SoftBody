@@ -99,3 +99,22 @@ fingerPosition.set(fingerX, fingerY);
 
 
 
+let physics;
+let particleString;
+
+function setup() {
+  createCanvas(860, 540);
+
+  physics = new toxi.physics2d.VerletPhysics2D();
+  physics.setWorldBounds(new toxi.geom.Rect(0, 0, width, height));
+
+  const startPosition = new toxi.geom.Vec2D(10, height / 2);
+  const stepDirection = new toxi.geom.Vec2D(1, 0).normalizeTo(10);
+  particleString = new ParticleString(physics, startPosition, stepDirection, 125, 0.1, 0.1);
+}
+
+function draw() {
+  background(0);
+  physics.update();
+  particleString.display();
+}

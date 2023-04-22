@@ -1,5 +1,7 @@
 //------- Condortable p5 world :))))) -------//
 //hand points: https://github.com/tensorflow/tfjs-models/tree/master/hand-pose-detection#mediapipe-hands-keypoints-used-in-mediapipe-hands
+//thread: http://haptic-data.com/toxiclibsjs/examples/thread 
+//soft body character: https://thecodingtrain.com/challenges/177-soft-body-character 
 
 let canvas;
 let isLoadedBothHands = false;
@@ -12,40 +14,45 @@ let particles = [];
 let springs = [];
 let eyes = [];
 
-// let imgPosX = 0;
-// let imgPosY = 0;
-// let imgSizeX = 0;
-// let imgSizeY = 0;
+// thread 尾巴
+let physicTail;
+let particleString;
+let tail;
+let isTailLocked = false;
 
-//let sketch = function (p) {
 function setup() {
-  canvas = createCanvas(1920,1080);
+  let canvasWidth = 1920;
+  let canvasHeight = 1080;
+
+  canvas = createCanvas(canvasWidth, canvasHeight);
   canvas.id("canvas");
 
   colorMode(HSB, 255);
   //rectMode(CENTER);
 
   physics = new VerletPhysics2D();
+  physicTail = new VerletPhysics2D();
 
-  let bounds = new Rect(0, 0, 1920, 1080);
+  let bounds = new Rect(0, 0, canvasWidth, canvasHeight);
   physics.setWorldBounds(bounds);
+  physicTail.setWorldBounds(bounds);
 
   //把关键点全都写上去，在这里画我的怪东西
   {
-    particles.push(new Particle(280, 145));
-    particles.push(new Particle(390, 120));
-    particles.push(new Particle(395, 228));
-    particles.push(new Particle(340, 228));
-    particles.push(new Particle(420, 350));
-    particles.push(new Particle(390, 400));
-    particles.push(new Particle(320, 380));
-    particles.push(new Particle(300, 350));
-    particles.push(new Particle(255, 400));
-    particles.push(new Particle(222, 350));
-    particles.push(new Particle(300, 228));
-    particles.push(new Particle(248, 228));
-    particles.push(new Particle(248, 120));
-    particles.push(new Particle(280, 120));
+    particles.push(new Particle(280, 145));//0
+    particles.push(new Particle(390, 120));//1
+    particles.push(new Particle(395, 228));//2
+    particles.push(new Particle(340, 228));//3
+    particles.push(new Particle(420, 350));//4
+    particles.push(new Particle(390, 400));//5
+    particles.push(new Particle(320, 380));//6
+    particles.push(new Particle(300, 350));//7
+    particles.push(new Particle(255, 400));//8
+    particles.push(new Particle(222, 350));//9
+    particles.push(new Particle(300, 228));//10
+    particles.push(new Particle(248, 228));//11
+    particles.push(new Particle(248, 120));//12
+    particles.push(new Particle(280, 120));//13
 
     //eyes
     eyes.push(new Particle(300, 200));
@@ -87,17 +94,20 @@ function setup() {
     // springs.push(new Spring(particles[4], particles[12], 0.01));
     // springs.push(new Spring(particles[11], particles[13], 0.01));
   }
+  //set up tails
+
+  const stepDirection = new toxi.geom.Vec2D(1, 1).normalizeTo(10);
+  particleString = new ParticleString(physicTail, new toxi.geom.Vec2D(), stepDirection, 125, 1, 0.1);
+  particleString.particles[0].lock();
+  tail = particleString.particles[particleString.particles.length - 1];
 
 }
 
 function draw() {
   clear();
-
   // 翻转摄像头画面
   // translate(width, 0);
   // scale(-1, 1);
-
-
 
   if (detections != undefined) {
     if (detections.multiHandLandmarks != undefined) {
@@ -158,10 +168,24 @@ function draw() {
 
   drawSoftBody();
 
+  //draw tail
+  particleString.particles[0].set(particles[6]);
+  physicTail.update();
+  particleString.display();
+
   // 将画布翻转回来
   // translate(width, 0);
   // scale(-1, 1);
 }
+
+// function mousePressed() {
+//   isTailLocked = !isTailLocked;
+//   if (isTailLocked) {
+//     tail.lock();
+//   } else {
+//     tail.unlock();
+//   }
+// }
 
 function drawSoftBody() {
   //draw soft body
@@ -422,8 +446,6 @@ function drawHandsTest() {
   // }
 
 }
-
-//}
 
 
 
