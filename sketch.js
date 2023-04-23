@@ -22,13 +22,13 @@ let physics;
 let tail;
 let particleStrings = [];
 //const associatedVertices = [5, 6, 8];
-const associatedVertices = Array.from({length: 20}, (_, i) => i);
+const associatedVertices = Array.from({length: 17}, (_, i) => i);
 
 //flower
 let physicFlower;
 let draggedParticle = null;
 let centerParticle;
-let particleGrabRadius = 50;
+let particleGrabRadius = 60;
 
 function setup() {
   let canvasWidth = 1920;
@@ -250,7 +250,7 @@ function drawSoftBodyCharacter() {
 }
 
 function createSymmetricalFlower() {
-  let nPetals = 20;
+  let nPetals = 17;
   let angleStep = TWO_PI / nPetals;
   let radius = 170;
   let centerX = width / 2;
@@ -308,8 +308,8 @@ function createSymmetricalFlower() {
 function drawSymmertricalFlower() {
   // Draw petals
   fill(255, 120);
-  stroke(255);
-  strokeWeight(2);
+  stroke(255,100);
+  strokeWeight(17);
   beginShape();
   for (let i = 1; i < particles.length; i++) {
     vertex(particles[i].x, particles[i].y);
@@ -317,12 +317,27 @@ function drawSymmertricalFlower() {
   endShape(CLOSE);
 
   stroke(255);
+  strokeWeight(1);
   for (let spring of springs) {
     line(spring.a.x, spring.a.y, spring.b.x, spring.b.y);
   }
 
   for (let particle of particles) {
-    ellipse(particle.x, particle.y, 50, 50);
+    stroke(255);
+    strokeWeight(1);
+    //noFill();
+    fill(255,70);
+    push();
+    translate(particle.x, particle.y);
+    rotate(PI/4);
+    ellipse(0,0, 80, 60);
+    ellipse(0,0, 60, 80);
+
+    noStroke();
+    ellipse(0,0, 35, 35);
+    // fill(255);
+    // ellipse(0,0, 10, 10);
+    pop();
   }
 
   //draw tail
