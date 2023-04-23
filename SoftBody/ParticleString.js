@@ -21,7 +21,8 @@ class ParticleString {
   }
 
   display() {
-    stroke(255, 100);
+    stroke(255, 180);
+    strokeWeight(1);
     noFill();
 
     beginShape();
@@ -31,7 +32,7 @@ class ParticleString {
     endShape();
 
     for (const particle of this.particles) {
-      ellipse(particle.x, particle.y, 5, 5);
+      ellipse(particle.x, particle.y, 7, 7);
     }
   }
 }

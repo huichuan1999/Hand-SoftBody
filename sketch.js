@@ -20,7 +20,9 @@ let tail;
 //tails
 let particleStrings = [];
 // 定义关联的顶点索引
-const associatedVertices = [5, 6, 8];
+//const associatedVertices = [5, 6, 8];
+const associatedVertices = Array.from({length: 14}, (_, i) => i);
+
 
 // 根据实际情况调整捏合阈值
 const pinchThreshold = 50;
