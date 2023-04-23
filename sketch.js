@@ -13,19 +13,16 @@ const { Vec2D, Rect } = toxi.geom;
 let particles = [];
 let springs = [];
 
+// 根据实际情况调整捏合阈值
+const pinchThreshold = 50;
+
 //soft body character
 let eyes = [];
 let physics;
 let tail;
-//tails
 let particleStrings = [];
-// 定义关联的顶点索引
 //const associatedVertices = [5, 6, 8];
-const associatedVertices = Array.from({length: 14}, (_, i) => i);
-
-
-// 根据实际情况调整捏合阈值
-const pinchThreshold = 50;
+const associatedVertices = Array.from({length: 20}, (_, i) => i);
 
 //flower
 let physicFlower;
@@ -43,9 +40,8 @@ function setup() {
   colorMode(HSB, 255);
   //rectMode(CENTER);
 
-  createCharacter();
-  //createSymmetricalFlower();
-
+  //createCharacter();
+  createSymmetricalFlower();
 
 }
 
@@ -110,8 +106,8 @@ function draw() {
     }
   }
 
-  drawSoftBodyCharacter();
-  //drawSymmertricalFlower();
+  //drawSoftBodyCharacter();
+  drawSymmertricalFlower();
 }
 
 function createCharacter() {
@@ -160,9 +156,7 @@ function createCharacter() {
   }
 
   //set up tails
-
   const stepDirection = new toxi.geom.Vec2D(1, 1).normalizeTo(10);
-
   // 创建 ParticleString 对象数组
   for (let i = 0; i < associatedVertices.length; i++) {
     const particleString = new ParticleString(
@@ -219,13 +213,11 @@ function drawSoftBodyCharacter() {
   //   }
 
   //draw tail
-  
   // 更新 ParticleString 的起点以跟随多边形顶点
   for (let i = 0; i < associatedVertices.length; i++) {
     const vertexIndex = associatedVertices[i];
     particleStrings[i].particles[0].set(particles[vertexIndex]);
   }
-
   // 显示所有 ParticleString
   for (const particleString of particleStrings) {
     particleString.display();
@@ -260,7 +252,7 @@ function drawSoftBodyCharacter() {
 function createSymmetricalFlower() {
   let nPetals = 20;
   let angleStep = TWO_PI / nPetals;
-  let radius = 100;
+  let radius = 170;
   let centerX = width / 2;
   let centerY = height / 2;
 
@@ -284,20 +276,37 @@ function createSymmetricalFlower() {
     physicFlower.addSpring(centerSpring);
 
     if (i > 0) {
-      let spring = new VerletSpring2D(particles[i + 1], particles[i], 2 * radius * sin(angleStep / 2), 0.01);
+      let spring = new VerletSpring2D(particles[i + 1], particles[i], 2 * radius * sin(angleStep / 2), 0.1);
       springs.push(spring);
       physicFlower.addSpring(spring);
     }
   }
 
-  let lastSpring = new VerletSpring2D(particles[1], particles[nPetals], 2 * radius * sin(angleStep / 2), 0.01);
+  let lastSpring = new VerletSpring2D(particles[1], particles[nPetals], 2 * radius * sin(angleStep / 2), 0.1);
   springs.push(lastSpring);
   physicFlower.addSpring(lastSpring);
+
+  //set up tails
+  const stepDirection = new toxi.geom.Vec2D(1, 1).normalizeTo(10);
+  // 创建 ParticleString 对象数组
+  for (let i = 0; i < associatedVertices.length; i++) {
+    const particleString = new ParticleString(
+      physicFlower,
+      new toxi.geom.Vec2D(),
+      stepDirection,
+      125,
+      1,
+      0.1
+    );
+    particleString.particles[0].lock();
+    tail = particleString.particles[particleString.particles.length - 1];
+    particleStrings.push(particleString);
+  }
+
 }
 
 function drawSymmertricalFlower() {
   // Draw petals
-  //noStroke();
   fill(255, 120);
   stroke(255);
   strokeWeight(2);
@@ -313,7 +322,18 @@ function drawSymmertricalFlower() {
   }
 
   for (let particle of particles) {
-    ellipse(particle.x, particle.y, 10, 10);
+    ellipse(particle.x, particle.y, 50, 50);
+  }
+
+  //draw tail
+  // 更新 ParticleString 的起点以跟随多边形顶点
+  for (let i = 0; i < associatedVertices.length; i++) {
+    const vertexIndex = associatedVertices[i];
+    particleStrings[i].particles[0].set(particles[vertexIndex]);
+  }
+  // 显示所有 ParticleString
+  for (const particleString of particleStrings) {
+    particleString.display();
   }
 
   //如果探测到手
