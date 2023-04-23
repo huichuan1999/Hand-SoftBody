@@ -9,16 +9,27 @@ let isLoadedBothHands = false;
 const { VerletPhysics2D, VerletParticle2D, VerletSpring2D } = toxi.physics2d;
 const { GravityBehavior } = toxi.physics2d.behaviors;
 const { Vec2D, Rect } = toxi.geom;
-let physics;
+
 let particles = [];
 let springs = [];
-let eyes = [];
 
+//soft body character
+let eyes = [];
+let physics;
 // thread 尾巴
 let physicTail1, physicTail2, physicTail3;
 let particleString1, particleString2, particleString3;
 let tail;
 let isTailLocked = false;
+
+// 根据实际情况调整捏合阈值
+const pinchThreshold = 50;
+
+//flower
+let physicFlower;
+let draggedParticle = null;
+let centerParticle;
+let particleGrabRadius = 50;
 
 function setup() {
   let canvasWidth = 1920;
@@ -30,8 +41,9 @@ function setup() {
   colorMode(HSB, 255);
   //rectMode(CENTER);
 
-  createCharacter();
-  //createSymmetricalFlower();
+  //createCharacter();
+  //physicFlower = new VerletPhysics2D();
+  createSymmetricalFlower();
 
 
 }
@@ -39,6 +51,7 @@ function setup() {
 function draw() {
   clear();
 
+  //draw landmarks
   if (detections != undefined) {
     if (detections.multiHandLandmarks != undefined) {
 
@@ -96,9 +109,8 @@ function draw() {
     }
   }
 
-  drawSoftBodyCharacter();
-
-  
+  //drawSoftBodyCharacter();
+  drawSymmertricalFlower();
 }
 
 function drawSoftBodyCharacter() {
@@ -158,9 +170,6 @@ function drawSoftBodyCharacter() {
 
   if (landmarkCoordinates[8] && landmarkCoordinates[4]) {
     const distance = calculateDistance(landmarkCoordinates[8], landmarkCoordinates[4]);
-
-    // 根据实际情况调整捏合阈值
-    const pinchThreshold = 50;
 
     if (distance < pinchThreshold) {
       // 捏合动作发生
@@ -258,8 +267,11 @@ function createSymmetricalFlower() {
   let centerX = width / 2;
   let centerY = height / 2;
 
+  physicFlower = new VerletPhysics2D();
+  physicFlower.setWorldBounds(new Rect(0, 0, width, height));
+
   centerParticle = new VerletParticle2D(new Vec2D(centerX, centerY));
-  physics.addParticle(centerParticle);
+  physicFlower.addParticle(centerParticle);
   particles.push(centerParticle);
 
   for (let i = 0; i < nPetals; i++) {
@@ -268,20 +280,78 @@ function createSymmetricalFlower() {
     let y = centerY + radius * sin(angle);
     let particle = new VerletParticle2D(new Vec2D(x, y));
     particles.push(particle);
-    physics.addParticle(particle);
+    physicFlower.addParticle(particle);
 
     let centerSpring = new VerletSpring2D(centerParticle, particle, radius, 0.01);
     springs.push(centerSpring);
-    physics.addSpring(centerSpring);
+    physicFlower.addSpring(centerSpring);
 
     if (i > 0) {
       let spring = new VerletSpring2D(particles[i + 1], particles[i], 2 * radius * sin(angleStep / 2), 0.01);
       springs.push(spring);
-      physics.addSpring(spring);
+      physicFlower.addSpring(spring);
     }
   }
 
   let lastSpring = new VerletSpring2D(particles[1], particles[nPetals], 2 * radius * sin(angleStep / 2), 0.01);
   springs.push(lastSpring);
-  physics.addSpring(lastSpring);
+  physicFlower.addSpring(lastSpring);
+}
+
+function drawSymmertricalFlower() {
+  // Draw petals
+  //noStroke();
+  fill(255, 120);
+  stroke(255);
+  strokeWeight(2);
+  beginShape();
+  for (let i = 1; i < particles.length; i++) {
+    vertex(particles[i].x, particles[i].y);
+  }
+  endShape(CLOSE);
+
+  stroke(255);
+  for (let spring of springs) {
+    line(spring.a.x, spring.a.y, spring.b.x, spring.b.y);
+  }
+
+  for (let particle of particles) {
+    ellipse(particle.x, particle.y, 10, 10);
+  }
+
+  //如果探测到手
+  const landmarkIndices = [8, 4];
+  const landmarkCoordinates = getLandmarkCoordinates(landmarkIndices, detections);
+
+  if (landmarkCoordinates[8] && landmarkCoordinates[4]) {
+    const distance = calculateDistance(landmarkCoordinates[8], landmarkCoordinates[4]);
+
+    if (distance < pinchThreshold) {
+      // 捏合动作发生
+      const midpoint = {
+        x: (landmarkCoordinates[8].x + landmarkCoordinates[4].x) / 2,
+        y: (landmarkCoordinates[8].y + landmarkCoordinates[4].y) / 2
+      };
+
+      fill(255, 0, 0);
+      noStroke();
+      ellipse(midpoint.x, midpoint.y, 20, 20);
+
+      for (let particle of particles) {
+        let d = dist(midpoint.x, midpoint.y, particle.x, particle.y);
+        if (d < particleGrabRadius) {
+          draggedParticle = particle;
+          draggedParticle.set(midpoint.x, midpoint.y,);
+          //break;
+        }
+      }
+    } else {
+      draggedParticle = null;
+    }
+
+    //  if (draggedParticle !== null) {
+    // }
+
+  }
+  physicFlower.update();
 }
