@@ -16,9 +16,10 @@ let springs = [];
 //soft body character
 let eyes = [];
 let physics;
-// thread 尾巴
-let physicTail1, physicTail2, physicTail3;
-let particleString1, particleString2, particleString3;
+//tails
+let particleStrings = [];
+// 定义关联的顶点索引
+const associatedVertices = [5, 6, 8];
 let tail;
 let isTailLocked = false;
 
@@ -165,21 +166,28 @@ function createCharacter() {
   }
 
   //set up tails
+
   const stepDirection = new toxi.geom.Vec2D(1, 1).normalizeTo(10);
 
-  particleString1 = new ParticleString(physicTail1, new toxi.geom.Vec2D(), stepDirection, 125, 1, 0.1);
-  particleString1.particles[0].lock();
-  tail = particleString1.particles[particleString1.particles.length - 1];
+  
 
-  particleString2 = new ParticleString(physicTail2, new toxi.geom.Vec2D(), stepDirection, 125, 1, 0.1);
-  particleString2.particles[0].lock();
-  tail = particleString2.particles[particleString2.particles.length - 1];
-
-  particleString3 = new ParticleString(physicTail3, new toxi.geom.Vec2D(), stepDirection, 125, 1, 0.1);
-  particleString3.particles[0].lock();
-  tail = particleString3.particles[particleString3.particles.length - 1];
+  // 创建 ParticleString 对象数组
+  for (let i = 0; i < associatedVertices.length; i++) {
+    const particleString = new ParticleString(
+      physics,
+      new toxi.geom.Vec2D(),
+      stepDirection,
+      125,
+      1,
+      0.1
+    );
+    particleString.particles[0].lock();
+    tail = particleString.particles[particleString.particles.length - 1];
+    particleStrings.push(particleString);
+  }
 
 }
+
 function drawSoftBodyCharacter() {
   //draw soft body
   physics.update();
@@ -195,6 +203,9 @@ function drawSoftBodyCharacter() {
   }
   endShape(CLOSE);
 
+  eyes[0].show();
+  eyes[1].show();
+
   // 画会动的形状
   // beginShape();
   // for (let i = 0; i < physics.particles.length; i++) {
@@ -208,9 +219,6 @@ function drawSoftBodyCharacter() {
   // }
   // endShape(CLOSE);
 
-  eyes[0].show();
-  eyes[1].show();
-
   //   for (let particle of particles) {
   //     particle.show();
   //   }
@@ -219,17 +227,17 @@ function drawSoftBodyCharacter() {
   //   }
 
   //draw tail
-  particleString1.particles[0].set(particles[5]);
-  physicTail1.update();
-  particleString1.display();
+  
+  // 更新 ParticleString 的起点以跟随多边形顶点
+  for (let i = 0; i < associatedVertices.length; i++) {
+    const vertexIndex = associatedVertices[i];
+    particleStrings[i].particles[0].set(particles[vertexIndex]);
+  }
 
-  particleString2.particles[0].set(particles[6]);
-  physicTail2.update();
-  particleString2.display();
-
-  particleString3.particles[0].set(particles[8]);
-  physicTail3.update();
-  particleString3.display();
+  // 显示所有 ParticleString
+  for (const particleString of particleStrings) {
+    particleString.display();
+  }
 
   //如果探测到手
   const landmarkIndices = [8, 4];
@@ -255,7 +263,6 @@ function drawSoftBodyCharacter() {
 
     }
   }
-
 }
 
 function createSymmetricalFlower() {
