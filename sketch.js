@@ -16,12 +16,11 @@ let springs = [];
 //soft body character
 let eyes = [];
 let physics;
+let tail;
 //tails
 let particleStrings = [];
 // 定义关联的顶点索引
 const associatedVertices = [5, 6, 8];
-let tail;
-let isTailLocked = false;
 
 // 根据实际情况调整捏合阈值
 const pinchThreshold = 50;
@@ -116,16 +115,9 @@ function draw() {
 function createCharacter() {
 
   physics = new VerletPhysics2D();
-  physicTail1 = new VerletPhysics2D();
-  physicTail2 = new VerletPhysics2D();
-  physicTail3 = new VerletPhysics2D();
-
 
   let bounds = new Rect(0, 0, width, height);
   physics.setWorldBounds(bounds);
-  physicTail1.setWorldBounds(bounds);
-  physicTail2.setWorldBounds(bounds);
-  physicTail3.setWorldBounds(bounds);
 
   //把关键点全都写上去，在这里画我的怪东西
 
@@ -168,8 +160,6 @@ function createCharacter() {
   //set up tails
 
   const stepDirection = new toxi.geom.Vec2D(1, 1).normalizeTo(10);
-
-  
 
   // 创建 ParticleString 对象数组
   for (let i = 0; i < associatedVertices.length; i++) {
