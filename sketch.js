@@ -294,7 +294,7 @@ function createSymmetricalFlower() {
       physicFlower,
       new toxi.geom.Vec2D(),
       stepDirection,
-      125,
+      random(80,125),
       1,
       0.1
     );
@@ -340,7 +340,7 @@ function drawSymmertricalFlower() {
     pop();
   }
 
-  //draw tail
+  //draw tails
   // 更新 ParticleString 的起点以跟随多边形顶点
   for (let i = 0; i < associatedVertices.length; i++) {
     const vertexIndex = associatedVertices[i];
