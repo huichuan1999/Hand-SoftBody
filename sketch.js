@@ -41,9 +41,8 @@ function setup() {
   colorMode(HSB, 255);
   //rectMode(CENTER);
 
-  //createCharacter();
-  //physicFlower = new VerletPhysics2D();
-  createSymmetricalFlower();
+  createCharacter();
+  //createSymmetricalFlower();
 
 
 }
@@ -109,16 +108,84 @@ function draw() {
     }
   }
 
-  //drawSoftBodyCharacter();
-  drawSymmertricalFlower();
+  drawSoftBodyCharacter();
+  //drawSymmertricalFlower();
 }
 
+function createCharacter() {
+
+  physics = new VerletPhysics2D();
+  physicTail1 = new VerletPhysics2D();
+  physicTail2 = new VerletPhysics2D();
+  physicTail3 = new VerletPhysics2D();
+
+
+  let bounds = new Rect(0, 0, width, height);
+  physics.setWorldBounds(bounds);
+  physicTail1.setWorldBounds(bounds);
+  physicTail2.setWorldBounds(bounds);
+  physicTail3.setWorldBounds(bounds);
+
+  //把关键点全都写上去，在这里画我的怪东西
+
+  particles.push(new Particle(280, 145));//0
+  particles.push(new Particle(390, 120));//1
+  particles.push(new Particle(395, 228));//2
+  particles.push(new Particle(340, 228));//3
+  particles.push(new Particle(420, 350));//4
+  particles.push(new Particle(390, 400));//5
+  particles.push(new Particle(320, 380));//6
+  particles.push(new Particle(300, 350));//7
+  particles.push(new Particle(255, 400));//8
+  particles.push(new Particle(222, 350));//9
+  particles.push(new Particle(300, 228));//10
+  particles.push(new Particle(248, 228));//11
+  particles.push(new Particle(248, 120));//12
+  particles.push(new Particle(280, 120));//13
+
+  //eyes
+  eyes.push(new Particle(300, 200));
+  eyes.push(new Particle(360, 200));
+
+  //弹簧绕表面一圈
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      if (i !== j) {
+        let a = particles[i];
+        let b = particles[j];
+        // let b = particles[(i + 1) % particles.length];
+        springs.push(new Spring(a, b, 0.01));
+      }
+    }
+  }
+
+  for (let particle of particles) {
+    springs.push(new Spring(particle, eyes[0], 0.01));
+    springs.push(new Spring(particle, eyes[1], 0.01));
+  }
+
+  //set up tails
+  const stepDirection = new toxi.geom.Vec2D(1, 1).normalizeTo(10);
+
+  particleString1 = new ParticleString(physicTail1, new toxi.geom.Vec2D(), stepDirection, 125, 1, 0.1);
+  particleString1.particles[0].lock();
+  tail = particleString1.particles[particleString1.particles.length - 1];
+
+  particleString2 = new ParticleString(physicTail2, new toxi.geom.Vec2D(), stepDirection, 125, 1, 0.1);
+  particleString2.particles[0].lock();
+  tail = particleString2.particles[particleString2.particles.length - 1];
+
+  particleString3 = new ParticleString(physicTail3, new toxi.geom.Vec2D(), stepDirection, 125, 1, 0.1);
+  particleString3.particles[0].lock();
+  tail = particleString3.particles[particleString3.particles.length - 1];
+
+}
 function drawSoftBodyCharacter() {
   //draw soft body
   physics.update();
 
-  fill(255, 120);
-  stroke(0);
+  fill(255, 150);
+  stroke(255);
   strokeWeight(2);
 
   //draw shape
@@ -188,75 +255,6 @@ function drawSoftBodyCharacter() {
 
     }
   }
-
-}
-
-function createCharacter() {
-
-  physics = new VerletPhysics2D();
-  physicTail1 = new VerletPhysics2D();
-  physicTail2 = new VerletPhysics2D();
-  physicTail3 = new VerletPhysics2D();
-
-
-  let bounds = new Rect(0, 0, width, height);
-  physics.setWorldBounds(bounds);
-  physicTail1.setWorldBounds(bounds);
-  physicTail2.setWorldBounds(bounds);
-  physicTail3.setWorldBounds(bounds);
-
-  //把关键点全都写上去，在这里画我的怪东西
-
-  particles.push(new Particle(280, 145));//0
-  particles.push(new Particle(390, 120));//1
-  particles.push(new Particle(395, 228));//2
-  particles.push(new Particle(340, 228));//3
-  particles.push(new Particle(420, 350));//4
-  particles.push(new Particle(390, 400));//5
-  particles.push(new Particle(320, 380));//6
-  particles.push(new Particle(300, 350));//7
-  particles.push(new Particle(255, 400));//8
-  particles.push(new Particle(222, 350));//9
-  particles.push(new Particle(300, 228));//10
-  particles.push(new Particle(248, 228));//11
-  particles.push(new Particle(248, 120));//12
-  particles.push(new Particle(280, 120));//13
-
-  //eyes
-  eyes.push(new Particle(300, 200));
-  eyes.push(new Particle(360, 200));
-
-  //弹簧绕表面一圈
-  for (let i = 0; i < particles.length; i++) {
-    for (let j = i + 1; j < particles.length; j++) {
-      if (i !== j) {
-        let a = particles[i];
-        let b = particles[j];
-        // let b = particles[(i + 1) % particles.length];
-        springs.push(new Spring(a, b, 0.01));
-      }
-    }
-  }
-
-  for (let particle of particles) {
-    springs.push(new Spring(particle, eyes[0], 0.01));
-    springs.push(new Spring(particle, eyes[1], 0.01));
-  }
-
-  //set up tails
-  const stepDirection = new toxi.geom.Vec2D(1, 1).normalizeTo(10);
-
-  particleString1 = new ParticleString(physicTail1, new toxi.geom.Vec2D(), stepDirection, 125, 1, 0.1);
-  particleString1.particles[0].lock();
-  tail = particleString1.particles[particleString1.particles.length - 1];
-
-  particleString2 = new ParticleString(physicTail2, new toxi.geom.Vec2D(), stepDirection, 125, 1, 0.1);
-  particleString2.particles[0].lock();
-  tail = particleString2.particles[particleString2.particles.length - 1];
-
-  particleString3 = new ParticleString(physicTail3, new toxi.geom.Vec2D(), stepDirection, 125, 1, 0.1);
-  particleString3.particles[0].lock();
-  tail = particleString3.particles[particleString3.particles.length - 1];
 
 }
 
