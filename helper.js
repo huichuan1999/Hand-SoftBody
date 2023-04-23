@@ -118,3 +118,40 @@ function draw() {
   physics.update();
   particleString.display();
 }
+
+
+function createSymmetricalFlower() {
+    let nPetals = 20;
+    let angleStep = TWO_PI / nPetals;
+    let radius = 100;
+    let centerX = width / 2;
+    let centerY = height / 2;
+  
+    centerParticle = new VerletParticle2D(new Vec2D(centerX, centerY));
+    physics.addParticle(centerParticle);
+    particles.push(centerParticle);
+  
+    for (let i = 0; i < nPetals; i++) {
+      let angle = i * angleStep;
+      let x = centerX + radius * cos(angle);
+      let y = centerY + radius * sin(angle);
+      let particle = new VerletParticle2D(new Vec2D(x, y));
+      particles.push(particle);
+      physics.addParticle(particle);
+  
+      let centerSpring = new VerletSpring2D(centerParticle, particle, radius, 0.01);
+      springs.push(centerSpring);
+      physics.addSpring(centerSpring);
+  
+      if (i > 0) {
+        let spring = new VerletSpring2D(particles[i + 1], particles[i], 2 * radius * sin(angleStep / 2), 0.01);
+        springs.push(spring);
+        physics.addSpring(spring);
+      }
+    }
+  
+    let lastSpring = new VerletSpring2D(particles[1], particles[nPetals], 2 * radius * sin(angleStep / 2), 0.01);
+    springs.push(lastSpring);
+    physics.addSpring(lastSpring);
+  }
+  

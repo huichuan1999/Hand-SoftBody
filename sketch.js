@@ -30,98 +30,14 @@ function setup() {
   colorMode(HSB, 255);
   //rectMode(CENTER);
 
-  physics = new VerletPhysics2D();
-  physicTail1 = new VerletPhysics2D();
-  physicTail2 = new VerletPhysics2D();
-  physicTail3 = new VerletPhysics2D();
+  createCharacter();
+  //createSymmetricalFlower();
 
-
-  let bounds = new Rect(0, 0, canvasWidth, canvasHeight);
-  physics.setWorldBounds(bounds);
-  physicTail1.setWorldBounds(bounds);
-  physicTail2.setWorldBounds(bounds);
-  physicTail3.setWorldBounds(bounds);
-
-  //把关键点全都写上去，在这里画我的怪东西
-  {
-    particles.push(new Particle(280, 145));//0
-    particles.push(new Particle(390, 120));//1
-    particles.push(new Particle(395, 228));//2
-    particles.push(new Particle(340, 228));//3
-    particles.push(new Particle(420, 350));//4
-    particles.push(new Particle(390, 400));//5
-    particles.push(new Particle(320, 380));//6
-    particles.push(new Particle(300, 350));//7
-    particles.push(new Particle(255, 400));//8
-    particles.push(new Particle(222, 350));//9
-    particles.push(new Particle(300, 228));//10
-    particles.push(new Particle(248, 228));//11
-    particles.push(new Particle(248, 120));//12
-    particles.push(new Particle(280, 120));//13
-
-    //eyes
-    eyes.push(new Particle(300, 200));
-    eyes.push(new Particle(360, 200));
-
-    //弹簧绕表面一圈
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        if (i !== j) {
-          let a = particles[i];
-          let b = particles[j];
-          // let b = particles[(i + 1) % particles.length];
-          springs.push(new Spring(a, b, 0.001));
-        }
-      }
-    }
-
-    for (let particle of particles) {
-      springs.push(new Spring(particle, eyes[0], 0.01));
-      springs.push(new Spring(particle, eyes[1], 0.01));
-    }
-
-    //内部支撑 
-    // springs.push(new Spring(particles[0], particles[11], 0.01));
-    // springs.push(new Spring(particles[0], particles[10], 0.01));
-    // springs.push(new Spring(particles[1], particles[11], 1));
-    // springs.push(new Spring(particles[1], particles[3], 0.01));
-    // springs.push(new Spring(particles[2], particles[12], 0.01));
-    // springs.push(new Spring(particles[3], particles[7], 0.01));
-    // springs.push(new Spring(particles[3], particles[10], 0.01));
-    // springs.push(new Spring(particles[3], particles[8], 0.01));
-    // springs.push(new Spring(particles[4], particles[9], 0.01));
-    // springs.push(new Spring(particles[5], particles[3], 0.01));
-    // springs.push(new Spring(particles[5], particles[10], 0.01));
-    // springs.push(new Spring(particles[6], particles[3], 0.01));
-    // springs.push(new Spring(particles[7], particles[10], 0.01));
-    // springs.push(new Spring(particles[8], particles[10], 0.01));
-    // springs.push(new Spring(particles[1], particles[9], 0.01));
-    // springs.push(new Spring(particles[4], particles[12], 0.01));
-    // springs.push(new Spring(particles[11], particles[13], 0.01));
-  }
-  //set up tails
-
-  const stepDirection = new toxi.geom.Vec2D(1, 1).normalizeTo(10);
-
-  particleString1 = new ParticleString(physicTail1, new toxi.geom.Vec2D(), stepDirection, 125, 1, 0.1);
-  particleString1.particles[0].lock();
-  tail = particleString1.particles[particleString1.particles.length - 1];
-
-  particleString2 = new ParticleString(physicTail2, new toxi.geom.Vec2D(), stepDirection, 125, 1, 0.1);
-  particleString2.particles[0].lock();
-  tail = particleString2.particles[particleString2.particles.length - 1];
-
-  particleString3 = new ParticleString(physicTail3, new toxi.geom.Vec2D(), stepDirection, 125, 1, 0.1);
-  particleString3.particles[0].lock();
-  tail = particleString3.particles[particleString3.particles.length - 1];
 
 }
 
 function draw() {
   clear();
-  // 翻转摄像头画面
-  // translate(width, 0);
-  // scale(-1, 1);
 
   if (detections != undefined) {
     if (detections.multiHandLandmarks != undefined) {
@@ -180,7 +96,48 @@ function draw() {
     }
   }
 
-  drawSoftBody();
+  drawSoftBodyCharacter();
+
+  
+}
+
+function drawSoftBodyCharacter() {
+  //draw soft body
+  physics.update();
+
+  fill(255, 120);
+  stroke(0);
+  strokeWeight(2);
+
+  //draw shape
+  beginShape();
+  for (let particle of particles) {
+    vertex(particle.x, particle.y);
+  }
+  endShape(CLOSE);
+
+  // 画会动的形状
+  // beginShape();
+  // for (let i = 0; i < physics.particles.length; i++) {
+  //   let particle = physics.particles[i];
+
+  //   // 动态形状
+  //   let adjustedX = particle.x;
+  //   let adjustedY = particle.y + 10 * Math.sin(frameCount * 0.5 + i * 0.5);
+
+  //   vertex(adjustedX, adjustedY);
+  // }
+  // endShape(CLOSE);
+
+  eyes[0].show();
+  eyes[1].show();
+
+  //   for (let particle of particles) {
+  //     particle.show();
+  //   }
+  //   for (let spring of springs) {
+  //     spring.show();
+  //   }
 
   //draw tail
   particleString1.particles[0].set(particles[5]);
@@ -194,49 +151,6 @@ function draw() {
   particleString3.particles[0].set(particles[8]);
   physicTail3.update();
   particleString3.display();
-
-  // 将画布翻转回来
-  // translate(width, 0);
-  // scale(-1, 1);
-}
-
-// function mousePressed() {
-//   isTailLocked = !isTailLocked;
-//   if (isTailLocked) {
-//     tail.lock();
-//   } else {
-//     tail.unlock();
-//   }
-// }
-
-function drawSoftBody() {
-  //draw soft body
-  physics.update();
-
-  fill(255, 100);
-  stroke(0);
-  strokeWeight(2);
-  beginShape();
-  for (let particle of particles) {
-    vertex(particle.x, particle.y);
-  }
-  endShape(CLOSE);
-
-  //   for (let particle of particles) {
-  //     particle.show();
-  //   }
-  eyes[0].show();
-  eyes[1].show();
-
-  //   for (let spring of springs) {
-  //     spring.show();
-  //   }
-  if (mouseIsPressed) { //改成：如果手捏合了/如果检测到手的某一个节点
-    // particles[1].lock();
-    // particles[1].x = mouseX;
-    // particles[1].y = mouseY;
-    // particles[1].unlock();
-  }
 
   //如果探测到手
   const landmarkIndices = [8, 4];
@@ -255,17 +169,6 @@ function drawSoftBody() {
         y: (landmarkCoordinates[8].y + landmarkCoordinates[4].y) / 2
       };
 
-      // flippedpointX = width - midpoint.x;
-      // flippedpointY = midpoint.y;
-
-      // fill(255, 0, 0);
-      // noStroke();
-      // ellipse(flippedpointX, flippedpointY, 20, 20);
-      // particles[1].lock();
-      // particles[1].x = flippedpointX;
-      // particles[1].y = flippedpointY;
-      // particles[1].unlock();
-
       fill(255, 0, 0);
       noStroke();
       ellipse(midpoint.x, midpoint.y, 20, 20);
@@ -279,196 +182,106 @@ function drawSoftBody() {
 
 }
 
-function getLandmarkCoordinates(indexArray, detections) {
-  const coordinates = {};
-  if (detections != undefined && detections.multiHandLandmarks != undefined) {
-    for (let i = 0; i < detections.multiHandLandmarks.length; i++) {
-      for (let j = 0; j < indexArray.length; j++) {
-        let index = indexArray[j];
-        let x = detections.multiHandLandmarks[i][index].x * width;
-        let y = detections.multiHandLandmarks[i][index].y * height;
-        coordinates[index] = { x, y };
+function createCharacter() {
+
+  physics = new VerletPhysics2D();
+  physicTail1 = new VerletPhysics2D();
+  physicTail2 = new VerletPhysics2D();
+  physicTail3 = new VerletPhysics2D();
+
+
+  let bounds = new Rect(0, 0, width, height);
+  physics.setWorldBounds(bounds);
+  physicTail1.setWorldBounds(bounds);
+  physicTail2.setWorldBounds(bounds);
+  physicTail3.setWorldBounds(bounds);
+
+  //把关键点全都写上去，在这里画我的怪东西
+
+  particles.push(new Particle(280, 145));//0
+  particles.push(new Particle(390, 120));//1
+  particles.push(new Particle(395, 228));//2
+  particles.push(new Particle(340, 228));//3
+  particles.push(new Particle(420, 350));//4
+  particles.push(new Particle(390, 400));//5
+  particles.push(new Particle(320, 380));//6
+  particles.push(new Particle(300, 350));//7
+  particles.push(new Particle(255, 400));//8
+  particles.push(new Particle(222, 350));//9
+  particles.push(new Particle(300, 228));//10
+  particles.push(new Particle(248, 228));//11
+  particles.push(new Particle(248, 120));//12
+  particles.push(new Particle(280, 120));//13
+
+  //eyes
+  eyes.push(new Particle(300, 200));
+  eyes.push(new Particle(360, 200));
+
+  //弹簧绕表面一圈
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      if (i !== j) {
+        let a = particles[i];
+        let b = particles[j];
+        // let b = particles[(i + 1) % particles.length];
+        springs.push(new Spring(a, b, 0.01));
       }
     }
   }
-  return coordinates;
+
+  for (let particle of particles) {
+    springs.push(new Spring(particle, eyes[0], 0.01));
+    springs.push(new Spring(particle, eyes[1], 0.01));
+  }
+
+  //set up tails
+  const stepDirection = new toxi.geom.Vec2D(1, 1).normalizeTo(10);
+
+  particleString1 = new ParticleString(physicTail1, new toxi.geom.Vec2D(), stepDirection, 125, 1, 0.1);
+  particleString1.particles[0].lock();
+  tail = particleString1.particles[particleString1.particles.length - 1];
+
+  particleString2 = new ParticleString(physicTail2, new toxi.geom.Vec2D(), stepDirection, 125, 1, 0.1);
+  particleString2.particles[0].lock();
+  tail = particleString2.particles[particleString2.particles.length - 1];
+
+  particleString3 = new ParticleString(physicTail3, new toxi.geom.Vec2D(), stepDirection, 125, 1, 0.1);
+  particleString3.particles[0].lock();
+  tail = particleString3.particles[particleString3.particles.length - 1];
+
 }
 
-function calculateDistance(pointA, pointB) {
-  const deltaX = pointA.x - pointB.x;
-  const deltaY = pointA.y - pointB.y;
-  //求平方根 三角函数
-  return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-}
+function createSymmetricalFlower() {
+  let nPetals = 20;
+  let angleStep = TWO_PI / nPetals;
+  let radius = 100;
+  let centerX = width / 2;
+  let centerY = height / 2;
 
-function drawTestC(index, hue, size) { //画会变色的圆圈
-  stroke(0, 0, 255);
-  strokeWeight(1);
-  //noStroke();
-  //fill(hue);
-  //noFill();
+  centerParticle = new VerletParticle2D(new Vec2D(centerX, centerY));
+  physics.addParticle(centerParticle);
+  particles.push(centerParticle);
 
-  //获得手部landmarks关键点
+  for (let i = 0; i < nPetals; i++) {
+    let angle = i * angleStep;
+    let x = centerX + radius * cos(angle);
+    let y = centerY + radius * sin(angle);
+    let particle = new VerletParticle2D(new Vec2D(x, y));
+    particles.push(particle);
+    physics.addParticle(particle);
 
-  for (let i = 0; i < detections.multiHandLandmarks.length; i++) {
-    for (let j = 0; j < index.length - 1; j++) {
-      let x = detections.multiHandLandmarks[i][index[j]].x * width;
-      let y = detections.multiHandLandmarks[i][index[j]].y * height;
-      let z = detections.multiHandLandmarks[i][index[j]].z;
+    let centerSpring = new VerletSpring2D(centerParticle, particle, radius, 0.01);
+    springs.push(centerSpring);
+    physics.addSpring(centerSpring);
 
-      let _x = detections.multiHandLandmarks[i][index[j + 1]].x * width;
-      let _y = detections.multiHandLandmarks[i][index[j + 1]].y * height;
-      let _z = detections.multiHandLandmarks[i][index[j + 1]].z;
-      // line(x, y, _x, _y);
-
-      // stroke(hue,200,250);
-      // strokeWeight(1);
-      fill(hue, 140, 220, 200);
-      //rect(_x, _y,10,10);
-      ellipse(x, y, size); //在这里！！
-
-      //ellipse(_x, _y,100);
-
+    if (i > 0) {
+      let spring = new VerletSpring2D(particles[i + 1], particles[i], 2 * radius * sin(angleStep / 2), 0.01);
+      springs.push(spring);
+      physics.addSpring(spring);
     }
   }
 
+  let lastSpring = new VerletSpring2D(particles[1], particles[nPetals], 2 * radius * sin(angleStep / 2), 0.01);
+  springs.push(lastSpring);
+  physics.addSpring(lastSpring);
 }
-
-function drawHands() {
-  beginShape();
-  for (let i = 0; i < detections.multiHandLandmarks.length; i++) {
-    for (let j = 0; j < detections.multiHandLandmarks[i].length; j++) {
-      let x = detections.multiHandLandmarks[i][j].x * width;
-      let y = detections.multiHandLandmarks[i][j].y * height;
-      let z = detections.multiHandLandmarks[i][j].z;
-      // strokeWeight(0);
-      // textFont('Helvetica Neue');
-      // text(j, x, y);
-      stroke(255);
-      strokeWeight(10);
-
-      point(x, y);
-
-    }
-    endShape();
-  }
-}
-
-function drawLandmarks(indexArray, hue) {
-  noFill();
-  //fill(50);
-  strokeWeight(8);
-  beginShape();
-  for (let i = 0; i < detections.multiHandLandmarks.length; i++) {
-    for (let j = indexArray[0]; j < indexArray[1]; j++) {
-      let x = detections.multiHandLandmarks[i][j].x * width;
-      let y = detections.multiHandLandmarks[i][j].y * height;
-      // let z = detections.multiHandLandmarks[i][j].z;
-      stroke(hue, 40, 255);
-      point(x, y);
-      //vertex(x, y);
-      //vertex(y, x);
-
-    }
-    endShape();
-  }
-}
-
-function drawLines(index) {
-  stroke(0, 0, 255, 120);
-  strokeWeight(3);
-  beginShape();
-  for (let i = 0; i < detections.multiHandLandmarks.length; i++) {
-    for (let j = 0; j < index.length - 1; j++) {
-      let x = detections.multiHandLandmarks[i][index[j]].x * width;
-      let y = detections.multiHandLandmarks[i][index[j]].y * height;
-      // let z = detections.multiHandLandmarks[i][index[j]].z;
-
-      let _x = detections.multiHandLandmarks[i][index[j + 1]].x * width;
-      let _y = detections.multiHandLandmarks[i][index[j + 1]].y * height;
-      // let _z = detections.multiHandLandmarks[i][index[j+1]].z;
-      line(x, y, _x, _y);
-      // vertex(x, y);
-      // vertex(_x, _y);
-
-    }
-    endShape();
-  }
-}
-
-function drawTest(indexArray, hue) {
-  //noFill();
-  fill(hue);
-  strokeWeight(8);
-  beginShape();
-  for (let i = 0; i < detections.multiHandLandmarks.length; i++) {
-    for (let j = indexArray[0]; j < indexArray[1]; j++) {
-      let x = detections.multiHandLandmarks[i][j].x * width;
-      let y = detections.multiHandLandmarks[i][j].y * height;
-      // let z = detections.multiHandLandmarks[i][j].z;
-      stroke(hue, 40, 255);
-      point(x, y);
-      //vertex(x, y);
-      //vertex(y, x);
-
-    }
-    endShape();
-  }
-}
-
-function drawTestB(index, hue) {
-  stroke(0, 0, 255);
-  strokeWeight(10);
-  noStroke();
-  fill(hue);
-  beginShape();
-  for (let i = 0; i < detections.multiHandLandmarks.length; i++) {
-    for (let j = 0; j < index.length - 1; j++) {
-      let x = detections.multiHandLandmarks[i][index[j]].x * width;
-      let y = detections.multiHandLandmarks[i][index[j]].y * height;
-      // let z = detections.multiHandLandmarks[i][index[j]].z;
-
-      let _x = detections.multiHandLandmarks[i][index[j + 1]].x * width;
-      let _y = detections.multiHandLandmarks[i][index[j + 1]].y * height;
-      // let _z = detections.multiHandLandmarks[i][index[j+1]].z;
-      // line(x, y, _x, _y);
-
-      vertex(x, y);
-      vertex(_x, _y);
-
-    }
-    endShape();
-  }
-
-}
-
-function drawHandsTest() {
-  let hand_0 = detections.multiHandLandmarks[0];
-  let hand_1 = detections.multiHandLandmarks[1];
-
-  // let maxDist = dist(width - hand_0[8].x * width, hand_0[8].y * height,
-  //   width - hand_0[7].x * width, hand_0[7].y * height);
-
-  // let targetDistA = dist(width - hand_0[8].x * width, hand_0[8].y * height,
-  //     width - hand_1[4].x * width, hand_1[4].y * height);
-
-  // let targetDistB = dist(width - hand_0[4].x * width, hand_0[4].y * height,
-  //       width - hand_1[8].x * width, hand_1[8].y * height);
-
-  let a = hand_0[8].x * width;
-  let b = hand_0[8].y * height;
-  let c = hand_0[4].x * width;
-  let d = hand_0[4].y * height;
-  fill(100, 50, 200);
-  ellipse(a, b, 100);
-  ellipse(c, d, 100);
-
-  // if (targetDistA < maxDist && targetDistB < maxDist) {
-  //   drawTestC([4,8,12,16,20,0],90);
-  // }
-
-}
-
-
-
-//let myp5 = new p5(sketch);
