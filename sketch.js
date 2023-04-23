@@ -22,7 +22,7 @@ let physics;
 let tail;
 let particleStrings = [];
 //const associatedVertices = [5, 6, 8];
-const associatedVertices = Array.from({length: 17}, (_, i) => i);
+const associatedVertices = Array.from({length: 16}, (_, i) => i);
 
 //flower
 let physicFlower;
@@ -250,7 +250,7 @@ function drawSoftBodyCharacter() {
 }
 
 function createSymmetricalFlower() {
-  let nPetals = 17;
+  let nPetals = 16;
   let angleStep = TWO_PI / nPetals;
   let radius = 170;
   let centerX = width / 2;
@@ -287,16 +287,16 @@ function createSymmetricalFlower() {
   physicFlower.addSpring(lastSpring);
 
   //set up tails
-  const stepDirection = new toxi.geom.Vec2D(1, 1).normalizeTo(10);
+  const stepDirection = new toxi.geom.Vec2D(1, 1).normalizeTo(20);
   // 创建 ParticleString 对象数组
   for (let i = 0; i < associatedVertices.length; i++) {
     const particleString = new ParticleString(
       physicFlower,
       new toxi.geom.Vec2D(),
       stepDirection,
-      random(80,125),
+      random(50,100),
       1,
-      0.1
+      0.5
     );
     particleString.particles[0].lock();
     tail = particleString.particles[particleString.particles.length - 1];
@@ -309,7 +309,7 @@ function drawSymmertricalFlower() {
   // Draw petals
   fill(255, 120);
   stroke(255,100);
-  strokeWeight(17);
+  strokeWeight(16);
   beginShape();
   for (let i = 1; i < particles.length; i++) {
     vertex(particles[i].x, particles[i].y);
@@ -327,17 +327,23 @@ function drawSymmertricalFlower() {
     strokeWeight(1);
     //noFill();
     fill(255,70);
-    push();
-    translate(particle.x, particle.y);
-    rotate(PI/4);
-    ellipse(0,0, 80, 60);
-    ellipse(0,0, 60, 80);
+    // push();
+    // translate(particle.x, particle.y);
+    // rotate(PI/4);
+    // ellipse(0,0, 80, 60);
+    // ellipse(0,0, 60, 80);
 
-    noStroke();
-    ellipse(0,0, 35, 35);
+    // noStroke();
+    // ellipse(0,0, 35, 35);
     // fill(255);
     // ellipse(0,0, 10, 10);
-    pop();
+    //pop();
+
+    ellipse(particle.x, particle.y, 80, 60);
+    ellipse(particle.x, particle.y, 60, 80);
+
+    noStroke();
+    ellipse(particle.x, particle.y, 35, 35);
   }
 
   //draw tails
