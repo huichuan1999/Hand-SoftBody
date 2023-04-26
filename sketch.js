@@ -116,8 +116,32 @@ function draw() {
 
 function createCharacter() {
 
-  physics = new VerletPhysics2D();
-  physics.setWorldBounds(new Rect(0, 0, width, height));
+  // physics = new VerletPhysics2D();
+  // physics.setWorldBounds(new Rect(0, 0, width, height));
+  // 创建柔性边界粒子
+  const boundaryParticles = [
+    new VerletParticle2D(new Vec2D(width / 2, -50)),
+    new VerletParticle2D(new Vec2D(width / 2, height + 50)),
+    new VerletParticle2D(new Vec2D(-50, height / 2)),
+    new VerletParticle2D(new Vec2D(width + 50, height / 2)),
+  ];
+
+  // 将边界粒子添加到物理系统中
+  for (const boundaryParticle of boundaryParticles) {
+    physics.addParticle(boundaryParticle);
+    boundaryParticle.lock(); // 锁定边界粒子，防止它们移动
+  }
+
+  const boundarySpringCoefficient = 0.1; // 调整这个值以改变边界回弹力度
+
+  // 创建弹簧并将它们添加到物理系统中
+  for (const particle of particles) {
+    for (const boundaryParticle of boundaryParticles) {
+      const distance = particle.distanceTo(boundaryParticle);
+      const spring = new VerletSpring2D(particle, boundaryParticle, distance, boundarySpringCoefficient);
+      physics.addSpring(spring);
+    }
+  }
 
   physicTail = new VerletPhysics2D();
   physicTail.setWorldBounds(new Rect(0, 0, width, height));
@@ -164,7 +188,7 @@ function createCharacter() {
   const stepDirection = new toxi.geom.Vec2D(1, 1).normalizeTo(10);
   // 创建 ParticleString 对象数组
   for (let i = 0; i < associatedVertices.length; i++) {
-    const particleString = new ParticleString(physicTail,new toxi.geom.Vec2D(),stepDirection,125,1,0.1);
+    const particleString = new ParticleString(physicTail, new toxi.geom.Vec2D(), stepDirection, 125, 1, 0.1);
     particleString.particles[0].lock();
     tail = particleString.particles[particleString.particles.length - 1];
     particleStrings.push(particleString);
@@ -245,7 +269,7 @@ function drawSoftBodyCharacter() {
 
   // 为手部粒子创建排斥力
   for (const handParticle of handParticles) {
-    const attraction = new toxi.physics2d.behaviors.AttractionBehavior(handParticle, 20, -0.3, 0);
+    const attraction = new toxi.physics2d.behaviors.AttractionBehavior(handParticle, 10, -0.2, 0);
     // 将排斥力应用于花朵粒子
     for (let flowerParticle of particles) {
       physics.addBehavior(attraction);
@@ -311,6 +335,20 @@ function createSymmetricalFlower() {
       physics.addSpring(spring);
     }
   }
+    // 添加内部支撑
+    for (let i = 1; i <= nPetals; i++) {
+      for (let offset = 6; offset <= nPetals / 2; offset++) {
+        const j = ((i + offset - 1) % nPetals) + 1;
+        const spring = new VerletSpring2D(
+          particles[i],
+          particles[j],
+          particles[i].distanceTo(particles[j]),
+          0.1
+        );
+        springs.push(spring);
+        physics.addSpring(spring);
+      }
+    }
 
   let lastSpring = new VerletSpring2D(particles[1], particles[nPetals], 2 * radius * sin(angleStep / 2), 0.1);
   springs.push(lastSpring);
@@ -320,7 +358,7 @@ function createSymmetricalFlower() {
   const stepDirection = new toxi.geom.Vec2D(1, 1).normalizeTo(20);
   // 创建 ParticleString 对象数组
   for (let i = 0; i < associatedVertices.length; i++) {
-    const particleString = new ParticleString(physicTail,new toxi.geom.Vec2D(),stepDirection,random(50, 100),1,0.5);
+    const particleString = new ParticleString(physicTail, new toxi.geom.Vec2D(), stepDirection, random(50, 100), 1, 0.5);
     particleString.particles[0].lock();
     tail = particleString.particles[particleString.particles.length - 1];
     particleStrings.push(particleString);
@@ -351,8 +389,8 @@ function drawSymmertricalFlower() {
     //noFill();
     fill(255, 70);
 
-    ellipse(particle.x, particle.y, 40, 30);
-    ellipse(particle.x, particle.y, 30, 40);
+    ellipse(particle.x, particle.y, 50, 40);
+    ellipse(particle.x, particle.y, 40, 50);
 
     noStroke();
     ellipse(particle.x, particle.y, 20, 20);
@@ -391,7 +429,7 @@ function drawSymmertricalFlower() {
 
   // 为手部粒子创建排斥力
   for (const handParticle of handParticles) {
-    const attraction = new toxi.physics2d.behaviors.AttractionBehavior(handParticle, 12, -0.2, 0);
+    const attraction = new toxi.physics2d.behaviors.AttractionBehavior(handParticle, 10, -0.2, 0);
     // 将排斥力应用于花朵粒子
     for (let flowerParticle of particles) {
       physics.addBehavior(attraction);
