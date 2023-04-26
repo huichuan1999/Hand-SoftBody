@@ -1,74 +1,3 @@
-function isPointInsidePolygon(point, polygon) {
-    let crossings = 0;
-    const numVertices = polygon.length;
-
-    for (let i = 0; i < numVertices; i++) {
-        const vertex1 = polygon[i];
-        const vertex2 = polygon[(i + 1) % numVertices];
-
-        if (((vertex1.y > point.y) !== (vertex2.y > point.y)) &&
-            (point.x < (vertex2.x - vertex1.x) * (point.y - vertex1.y) / (vertex2.y - vertex1.y) + vertex1.x)) {
-            crossings++;
-        }
-    }
-
-    return (crossings % 2) === 1;
-}
-
-
-const point = { x: mouseX, y: mouseY };
-
-const polygon = [
-    { x: 100, y: 100 },
-    { x: 200, y: 100 },
-    { x: 200, y: 200 },
-    { x: 100, y: 200 }
-];
-
-if (isPointInsidePolygon(point, polygon)) {
-    console.log("点在多边形内部");
-} else {
-    console.log("点在多边形外部");
-}
-
-
-let fingerParticle = new Particle(-100, -100); // 将手指顶点放在屏幕外
-
-// 为手指顶点与多边形顶点之间添加约束条件 在setup
-for (let particle of particles) {
-    const fingerToParticleDistance = dist(fingerParticle.x, fingerParticle.y, particle.x, particle.y);
-    const springStrength = 0.01; // 调整弹簧强度以改变交互的影响程度
-    springs.push(new Spring(fingerParticle, particle, springStrength));
-}
-
-function draw() {
-    // ... 其他代码
-
-    // 更新手指顶点的位置
-    const indexFingerTipIndex = 8;  //比如12 中指
-    const landmarkCoordinates = getLandmarkCoordinates([indexFingerTipIndex], detections);
-    if (landmarkCoordinates[indexFingerTipIndex]) {
-        fingerParticle.x = landmarkCoordinates[indexFingerTipIndex].x;
-        fingerParticle.y = landmarkCoordinates[indexFingerTipIndex].y; 
-    }
-
-    // ... 其他代码
-}
-
-
-function draw() {
-    // ... 其他代码
-
-    // 更新手指顶点的位置
-    if (detections && detections.multiHandLandmarks) {
-        const handLandmarks = detections.multiHandLandmarks[0]; // 获取第一个检测到的手的关键点
-        const indexFingerTip = handLandmarks[8]; // 获取食指尖的关键点
-        fingerParticle.x = indexFingerTip.x * width;
-        fingerParticle.y = indexFingerTip.y * height;
-    }
-
-    // ... 其他代码
-}
 
 
 // AttractionBehavior 用法参考：http://haptic-data.com/toxiclibsjs/examples/attraction2d
@@ -98,60 +27,74 @@ physics.addBehavior(repulsion);
 fingerPosition.set(fingerX, fingerY);
 
 
+  //_______________________________________________________________________________
 
-let physics;
-let particleString;
+  // 获取手部landmark坐标
+  const indexArray = [0, 5, 9, 13, 17]; // 选择你需要的landmark索引
+  const handLandmarks = getLandmarkCoordinates(indexArray, detections);
 
-function setup() {
-  createCanvas(860, 540);
+  // 遍历手部landmark坐标
+  // for (let index in handLandmarks) {
+  //   const landmarkPosition = handLandmarks[index];
 
-  physics = new toxi.physics2d.VerletPhysics2D();
-  physics.setWorldBounds(new toxi.geom.Rect(0, 0, width, height));
+  //   if (!handRepulsions[index] || !handParticles[index]) {
+  //     const handPositionToxi = new toxi.geom.Vec2D(landmarkPosition.x, landmarkPosition.y);
+  //     handParticles[index] = new toxi.physics2d.VerletParticle2D(handPositionToxi);
 
-  const startPosition = new toxi.geom.Vec2D(10, height / 2);
-  const stepDirection = new toxi.geom.Vec2D(1, 0).normalizeTo(10);
-  particleString = new ParticleString(physics, startPosition, stepDirection, 125, 0.1, 0.1);
-}
+  //     const repulsionRadius = 50;
+  //     const repulsionStrength = -1.5;
+  //     handRepulsions[index] = new toxi.physics2d.behaviors.AttractionBehavior(handParticles[index], repulsionRadius, repulsionStrength);
+  //     physics.addBehavior(handRepulsions[index]);
+  //   }
 
-function draw() {
-  background(0);
-  physics.update();
-  particleString.display();
-}
+  //   const handPositionToxi = new toxi.geom.Vec2D(landmarkPosition.x, landmarkPosition.y);
+  //   handParticles[index].set(handPositionToxi);
+  // }
+  //_______________________________________________________________________________
 
 
-function createSymmetricalFlower() {
-    let nPetals = 20;
-    let angleStep = TWO_PI / nPetals;
-    let radius = 100;
-    let centerX = width / 2;
-    let centerY = height / 2;
+
   
-    centerParticle = new VerletParticle2D(new Vec2D(centerX, centerY));
-    physics.addParticle(centerParticle);
-    particles.push(centerParticle);
-  
-    for (let i = 0; i < nPetals; i++) {
-      let angle = i * angleStep;
-      let x = centerX + radius * cos(angle);
-      let y = centerY + radius * sin(angle);
-      let particle = new VerletParticle2D(new Vec2D(x, y));
-      particles.push(particle);
-      physics.addParticle(particle);
-  
-      let centerSpring = new VerletSpring2D(centerParticle, particle, radius, 0.01);
-      springs.push(centerSpring);
-      physics.addSpring(centerSpring);
-  
-      if (i > 0) {
-        let spring = new VerletSpring2D(particles[i + 1], particles[i], 2 * radius * sin(angleStep / 2), 0.01);
-        springs.push(spring);
-        physics.addSpring(spring);
-      }
-    }
-  
-    let lastSpring = new VerletSpring2D(particles[1], particles[nPetals], 2 * radius * sin(angleStep / 2), 0.01);
-    springs.push(lastSpring);
-    physics.addSpring(lastSpring);
-  }
-  
+          //_______________________________________________________________________
+
+          // if (draggedParticle) {
+          //   physics.removeBehavior(handRepulsions[4]); // 移除原本与食指的排斥力
+          //   physics.removeBehavior(handRepulsions[8]); // 移除原本与拇指的排斥力
+          // }
+
+          // draggedParticle = particle;
+          // draggedParticle.set(midpoint.x, midpoint.y);
+
+          // // 添加吸引力
+          // const attractionRadius = 30;
+          // const attractionStrength = -0.9;
+          // handRepulsions[4] = new toxi.physics2d.behaviors.AttractionBehavior(handParticles[4], attractionRadius, attractionStrength);
+          // physics.addBehavior(handRepulsions[4]);
+          // handRepulsions[8] = new toxi.physics2d.behaviors.AttractionBehavior(handParticles[8], attractionRadius, attractionStrength);
+          // physics.addBehavior(handRepulsions[8]);
+        
+          //________________________________________________________________________
+
+ //  AttractionBehavior构造函数接受四个参数：
+
+// 粒子：作为引力中心的粒子。
+// 半径：引力影响范围的半径。
+// 强度：引力（或排斥力）的强度。正值表示引力，负值表示排斥力。
+// 衰减（可选）：距离衰减率，默认值为0。
+
+// 在这个例子中，每个粒子都有一个半径为20像素的排斥力场，强度为-1.2。这意味着当其他粒子进入该范围时，它们将受到排斥力的影响。
+// 请注意，这种排斥力仅在粒子间起作用，因此粒子不会互相靠得太近。
+
+  // // 将手部粒子的排斥力应用于花朵粒子
+  // const repulsionThreshold = 100; // 您可以调整此值以获得更好的效果
+  // const repulsionStrength = 5; // 您可以调整此值以获得更好的效果
+  // for (const handParticle of handParticles) {
+  //   for (const flowerParticle of particles) {
+  //     const handPos = handParticle.getParticle();
+  //     const distance = handPos.distanceTo(flowerParticle);
+  //     if (distance < repulsionThreshold) {
+  //       const direction = flowerParticle.sub(handPos).normalize().scale(repulsionStrength);
+  //       flowerParticle.addSelf(direction);
+  //     }
+  //   }
+  // }

@@ -20,6 +20,24 @@ function calculateDistance(pointA, pointB) {
   return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 }
 
+function addHandParticle(landmarkCoordinates) {
+  for (const index in landmarkCoordinates) {
+    if (index == 8 || index == 4) {
+      continue; // 跳过索引为 8 或 4 的关键点
+    }
+    const coord = landmarkCoordinates[index];
+    const p = new HandParticle(coord.x, coord.y);
+    handParticles.push(p);
+    //physics.addParticle(p);
+    console.log("handParticle added in")
+
+    // attraction 为负，粒子之间互相排斥
+    //physics.addBehavior(new toxi.physics2d.behaviors.AttractionBehavior(p, 100, -5, 0));
+  }
+}
+
+
+
 function drawTestC(index, hue, size) { //画会变色的圆圈
   stroke(0, 0, 255);
   strokeWeight(1);

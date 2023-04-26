@@ -15,20 +15,22 @@ let springs = [];
 
 // 根据实际情况调整捏合阈值
 const pinchThreshold = 50;
+let physics;
 
 //soft body character
 let eyes = [];
-let physics;
 let tail;
 let particleStrings = [];
 //const associatedVertices = [5, 6, 8];
-const associatedVertices = Array.from({length: 16}, (_, i) => i);
+const associatedVertices = Array.from({ length: 16 }, (_, i) => i);
 
 //flower
-let physicFlower;
+//let physics;
 let draggedParticle = null;
 let centerParticle;
-let particleGrabRadius = 60;
+let particleGrabRadius = 30;
+
+let handParticles = [];
 
 function setup() {
   let canvasWidth = 1920;
@@ -36,6 +38,10 @@ function setup() {
 
   canvas = createCanvas(canvasWidth, canvasHeight);
   canvas.id("canvas");
+
+  // const allLandmarkIndices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+  // const allLandmarkCoordinates = getLandmarkCoordinates(allLandmarkIndices, detections);
+  // addHandParticle(allLandmarkCoordinates);
 
   colorMode(HSB, 255);
   //rectMode(CENTER);
@@ -256,11 +262,11 @@ function createSymmetricalFlower() {
   let centerX = width / 2;
   let centerY = height / 2;
 
-  physicFlower = new VerletPhysics2D();
-  physicFlower.setWorldBounds(new Rect(0, 0, width, height));
+  physics = new VerletPhysics2D();
+  physics.setWorldBounds(new Rect(0, 0, width, height));
 
   centerParticle = new VerletParticle2D(new Vec2D(centerX, centerY));
-  physicFlower.addParticle(centerParticle);
+  physics.addParticle(centerParticle);
   particles.push(centerParticle);
 
   for (let i = 0; i < nPetals; i++) {
@@ -269,32 +275,32 @@ function createSymmetricalFlower() {
     let y = centerY + radius * sin(angle);
     let particle = new VerletParticle2D(new Vec2D(x, y));
     particles.push(particle);
-    physicFlower.addParticle(particle);
+    physics.addParticle(particle);
 
     let centerSpring = new VerletSpring2D(centerParticle, particle, radius, 0.01);
     springs.push(centerSpring);
-    physicFlower.addSpring(centerSpring);
+    physics.addSpring(centerSpring);
 
     if (i > 0) {
       let spring = new VerletSpring2D(particles[i + 1], particles[i], 2 * radius * sin(angleStep / 2), 0.1);
       springs.push(spring);
-      physicFlower.addSpring(spring);
+      physics.addSpring(spring);
     }
   }
 
   let lastSpring = new VerletSpring2D(particles[1], particles[nPetals], 2 * radius * sin(angleStep / 2), 0.1);
   springs.push(lastSpring);
-  physicFlower.addSpring(lastSpring);
+  physics.addSpring(lastSpring);
 
   //set up tails
   const stepDirection = new toxi.geom.Vec2D(1, 1).normalizeTo(20);
   // 创建 ParticleString 对象数组
   for (let i = 0; i < associatedVertices.length; i++) {
     const particleString = new ParticleString(
-      physicFlower,
+      physics,
       new toxi.geom.Vec2D(),
       stepDirection,
-      random(50,100),
+      random(50, 100),
       1,
       0.5
     );
@@ -308,7 +314,7 @@ function createSymmetricalFlower() {
 function drawSymmertricalFlower() {
   // Draw petals
   fill(255, 120);
-  stroke(255,100);
+  stroke(255, 100);
   strokeWeight(16);
   beginShape();
   for (let i = 1; i < particles.length; i++) {
@@ -326,18 +332,7 @@ function drawSymmertricalFlower() {
     stroke(255);
     strokeWeight(1);
     //noFill();
-    fill(255,70);
-    // push();
-    // translate(particle.x, particle.y);
-    // rotate(PI/4);
-    // ellipse(0,0, 80, 60);
-    // ellipse(0,0, 60, 80);
-
-    // noStroke();
-    // ellipse(0,0, 35, 35);
-    // fill(255);
-    // ellipse(0,0, 10, 10);
-    //pop();
+    fill(255, 70);
 
     ellipse(particle.x, particle.y, 80, 60);
     ellipse(particle.x, particle.y, 60, 80);
@@ -358,6 +353,40 @@ function drawSymmertricalFlower() {
   }
 
   //如果探测到手
+  const allLandmarkIndices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+  const allLandmarkCoordinates = getLandmarkCoordinates(allLandmarkIndices, detections);
+  for (let i = 0; i < handParticles.length; i++) {
+    const index = allLandmarkIndices[i];
+    if (index == 8 || index == 4) {
+      continue; // 跳过索引为 8 或 4 的关键点
+    }
+    const coord = allLandmarkCoordinates[index];
+    //handParticles[i].updatePosition(coord.x, coord.y);
+    if (coord) {
+      handParticles[i].updatePosition(coord.x, coord.y);
+    }
+  }
+
+  if (handParticles.length === 0) {
+    addHandParticle(allLandmarkCoordinates);
+  }
+  console.log(handParticles.length);
+
+  // 为手部粒子创建排斥力
+  for (const handParticle of handParticles) {
+    console.log("handParticle get");
+    const attraction = new toxi.physics2d.behaviors.AttractionBehavior(handParticle, 50, -5, 0);
+    console.log("attraction added");
+    // 将排斥力应用于花朵粒子
+    for (let flowerParticle of particles) {
+      physics.addBehavior(attraction);
+      console.log("attraction applyed");
+    }
+  }
+
+  physics.update();
+
+  //添加捏合交互
   const landmarkIndices = [8, 4];
   const landmarkCoordinates = getLandmarkCoordinates(landmarkIndices, detections);
 
@@ -370,7 +399,6 @@ function drawSymmertricalFlower() {
         x: (landmarkCoordinates[8].x + landmarkCoordinates[4].x) / 2,
         y: (landmarkCoordinates[8].y + landmarkCoordinates[4].y) / 2
       };
-
       fill(255, 0, 0);
       noStroke();
       ellipse(midpoint.x, midpoint.y, 20, 20);
@@ -387,9 +415,6 @@ function drawSymmertricalFlower() {
       draggedParticle = null;
     }
 
-    //  if (draggedParticle !== null) {
-    // }
-
   }
-  physicFlower.update();
+
 }
