@@ -29,7 +29,7 @@ function addHandParticle(landmarkCoordinates) {
     const p = new HandParticle(coord.x, coord.y);
     handParticles.push(p);
     //physics.addParticle(p);
-    console.log("handParticle added in")
+    //console.log("handParticle added in")
 
     // attraction 为负，粒子之间互相排斥
     //physics.addBehavior(new toxi.physics2d.behaviors.AttractionBehavior(p, 100, -5, 0));
