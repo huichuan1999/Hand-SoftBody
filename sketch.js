@@ -22,8 +22,8 @@ let eyes = [];
 let tail;
 let particleStrings = [];
 let physicTail;
-const associatedVertices = [5, 6, 8];
-//const associatedVertices = Array.from({ length: 16 }, (_, i) => i);
+//const associatedVertices = [5, 6, 8];
+const associatedVertices = Array.from({ length: 16 }, (_, i) => i);
 
 //flower
 //let physics;
@@ -36,19 +36,16 @@ let handParticles = [];
 function setup() {
   let canvasWidth = 1920;
   let canvasHeight = 1080;
+  frameRate(60);
 
   canvas = createCanvas(canvasWidth, canvasHeight);
   canvas.id("canvas");
 
-  // const allLandmarkIndices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
-  // const allLandmarkCoordinates = getLandmarkCoordinates(allLandmarkIndices, detections);
-  // addHandParticle(allLandmarkCoordinates);
-
   colorMode(HSB, 255);
   //rectMode(CENTER);
 
-  createCharacter();
-  //createSymmetricalFlower();
+  // createCharacter();
+  createSymmetricalFlower();
 
 }
 
@@ -113,8 +110,8 @@ function draw() {
     }
   }
 
-  drawSoftBodyCharacter();
-  //drawSymmertricalFlower();
+  // drawSoftBodyCharacter();
+  drawSymmertricalFlower();
 }
 
 function createCharacter() {
@@ -153,14 +150,14 @@ function createCharacter() {
         let a = particles[i];
         let b = particles[j];
         // let b = particles[(i + 1) % particles.length];
-        springs.push(new Spring(a, b, 0.01));
+        springs.push(new Spring(a, b, 0.1));
       }
     }
   }
 
   for (let particle of particles) {
-    springs.push(new Spring(particle, eyes[0], 0.01));
-    springs.push(new Spring(particle, eyes[1], 0.01));
+    springs.push(new Spring(particle, eyes[0], 0.1));
+    springs.push(new Spring(particle, eyes[1], 0.1));
   }
 
   //set up tails
@@ -394,7 +391,7 @@ function drawSymmertricalFlower() {
 
   // 为手部粒子创建排斥力
   for (const handParticle of handParticles) {
-    const attraction = new toxi.physics2d.behaviors.AttractionBehavior(handParticle, 30, -0.5, 0);
+    const attraction = new toxi.physics2d.behaviors.AttractionBehavior(handParticle, 12, -0.2, 0);
     // 将排斥力应用于花朵粒子
     for (let flowerParticle of particles) {
       physics.addBehavior(attraction);
