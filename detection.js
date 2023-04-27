@@ -5,6 +5,7 @@ const videoElement = document.getElementById('video');
 
 function gotHands(results) {
   detections = results;
+  
   //console.log(detections);
 
   // canvasCtx.save();
@@ -37,7 +38,7 @@ const camera = new Camera(videoElement, {
     await hands.send({image: videoElement});
   },
   width: 1920,
-  height: 1080
+  height: 1080 
   // width: window.innerWidth,
   // height: window.innerHeight,
 });
