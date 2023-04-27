@@ -270,7 +270,8 @@ function createSymmetricalFlower() {
       physics.addSpring(spring);
     }
   }
-    // Add inner spring
+    // Add inner spring -------------------------------------------------
+    //if don't want the inner springs, comment out these
     for (let i = 1; i <= nPetals; i++) {
       for (let offset = 6; offset <= nPetals / 2; offset++) {
         const j = ((i + offset - 1) % nPetals) + 1;
@@ -284,7 +285,7 @@ function createSymmetricalFlower() {
         physics.addSpring(spring);
       }
     }
-
+    //-------------------------------------------------------------------
   let lastSpring = new VerletSpring2D(particles[1], particles[nPetals], 2 * radius * sin(angleStep / 2), 0.1);
   springs.push(lastSpring);
   physics.addSpring(lastSpring);
