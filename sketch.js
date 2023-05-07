@@ -14,6 +14,7 @@ const { Vec2D, Rect } = toxi.geom;
 
 let particles = [];
 let springs = [];
+let handAttractions = [];
 
 // Adjust the pinch threshold according to the actual situation
 const pinchThreshold = 30;
@@ -272,19 +273,19 @@ function createSymmetricalFlower() {
   }
     // Add inner spring -------------------------------------------------
     //if don't want the inner springs, comment out these
-    for (let i = 1; i <= nPetals; i++) {
-      for (let offset = 6; offset <= nPetals / 2; offset++) {
-        const j = ((i + offset - 1) % nPetals) + 1;
-        const spring = new VerletSpring2D(
-          particles[i],
-          particles[j],
-          particles[i].distanceTo(particles[j]),
-          0.1
-        );
-        springs.push(spring);
-        physics.addSpring(spring);
-      }
-    }
+    // for (let i = 1; i <= nPetals; i++) {
+    //   for (let offset = 6; offset <= nPetals / 2; offset++) {
+    //     const j = ((i + offset - 1) % nPetals) + 1;
+    //     const spring = new VerletSpring2D(
+    //       particles[i],
+    //       particles[j],
+    //       particles[i].distanceTo(particles[j]),
+    //       0.1
+    //     );
+    //     springs.push(spring);
+    //     physics.addSpring(spring);
+    //   }
+    // }
     //-------------------------------------------------------------------
   let lastSpring = new VerletSpring2D(particles[1], particles[nPetals], 2 * radius * sin(angleStep / 2), 0.1);
   springs.push(lastSpring);
@@ -362,13 +363,21 @@ function drawSymmertricalFlower() {
   console.log(handParticles.length);
 
   // Create a repulsive force for the hand particles
-  for (const handParticle of handParticles) {
-    const attraction = new toxi.physics2d.behaviors.AttractionBehavior(handParticle, 10, -0.2, 0);
-    // Apply repulsion to flower particles
-    for (let flowerParticle of particles) {
-      physics.addBehavior(attraction);
-    }
+  // for (const handParticle of handParticles) {
+  //   const attraction = new toxi.physics2d.behaviors.AttractionBehavior(handParticle, 10, -0.2, 0);
+  //   // Apply repulsion to flower particles
+  //   for (let flowerParticle of particles) {
+  //     physics.addBehavior(attraction);
+  //   }
+  // }
+  for (let i = 0; i < handParticles.length; i++) {
+    handAttractions[i].attractor.set(handParticles[i].getPosition());
+    // 将排斥力应用于花朵粒子
+      physics.addBehavior(handAttractions[i]);
   }
+  
+  
+  
 
   physics.update();
   physicTail.update();

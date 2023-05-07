@@ -19,14 +19,31 @@ function calculateDistance(pointA, pointB) {
   return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 }
 
+// function addHandParticle(landmarkCoordinates) {
+//   for (const index in landmarkCoordinates) {
+//     if (index == 8 || index == 4) {
+//       continue; 
+//     }
+//     const coord = landmarkCoordinates[index];
+//     const p = new HandParticle(coord.x, coord.y);
+//     handParticles.push(p);
+//   }
+// }
+
 function addHandParticle(landmarkCoordinates) {
-  for (const index in landmarkCoordinates) {
-    if (index == 8 || index == 4) {
-      continue; 
+  for (let i = 0; i < 21; i++) {
+    if (i === 4 || i === 8) {
+      continue;
     }
-    const coord = landmarkCoordinates[index];
-    const p = new HandParticle(coord.x, coord.y);
-    handParticles.push(p);
+    const coord = landmarkCoordinates[i];
+    if (coord) {
+      const handParticle = new HandParticle(coord.x, coord.y);
+      handParticles.push(handParticle);
+
+      // 创建 AttractionBehavior 对象并添加到 handAttractions 数组中
+      const attraction = new toxi.physics2d.behaviors.AttractionBehavior(handParticle, 10, -0.2, 0);
+      handAttractions.push(attraction);
+    }
   }
 }
 
