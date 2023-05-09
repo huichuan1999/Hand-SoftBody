@@ -36,8 +36,8 @@ let particleGrabRadius = 30;
 let handParticles = [];
 
 function setup() {
-  let canvasWidth = 1920;
-  let canvasHeight = 1080;
+  let canvasWidth = window.innerWidth;
+  let canvasHeight = window.innerHeight;
   frameRate(60);
 
   canvas = createCanvas(canvasWidth, canvasHeight);
@@ -202,7 +202,7 @@ function drawSoftBodyCharacter() {
   if (handParticles.length === 0) {
     addHandParticle(allLandmarkCoordinates);
   }
-  console.log(handParticles.length);
+  //console.log(handParticles.length);
 
   // Create a repulsive force for the hand particles
   for (const handParticle of handParticles) {
@@ -360,7 +360,7 @@ function drawSymmertricalFlower() {
   if (handParticles.length === 0) {
     addHandParticle(allLandmarkCoordinates);
   }
-  console.log(handParticles.length);
+  //console.log(handParticles.length);
 
   // Create a repulsive force for the hand particles
   // for (const handParticle of handParticles) {
