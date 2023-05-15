@@ -8,7 +8,7 @@ html, body {
 }
 
 #canvas {
-  position: fixed;
+  position: absolute;
   transform: rotateY(180deg);
   top: 0;
   left: 0;
@@ -18,7 +18,7 @@ html, body {
 }
 
 #video {
-  position: fixed;
+  position: absolute;
   transform: rotateY(180deg);
   top: 0;
   left: 0;

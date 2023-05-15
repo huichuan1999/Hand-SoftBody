@@ -12,10 +12,6 @@ class HandParticle extends  VerletParticle2D  {
       return this;
     }
 
-    getParticle(){
-        return this;
-    }
-
     updateAttraction(attraction) {
       attraction.setAttractor(this);
     }

@@ -1,25 +1,8 @@
 let detections ={};
 const videoElement = document.getElementById('video');
-// const canvasElement = document.getElementsByClassName('output_canvas')[0];
-// const canvasCtx = canvasElement.getContext('2d');
 
 function gotHands(results) {
   detections = results;
-  
-  //console.log(detections);
-
-  // canvasCtx.save();
-  // canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-  // canvasCtx.drawImage(
-  //     results.image, 0, 0, canvasElement.width, canvasElement.height);
-  // if (results.multiHandLandmarks) {
-  //   for (const landmarks of results.multiHandLandmarks) {
-  //     drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS,
-  //                    {color: '#00FF00', lineWidth: 5});
-  //     drawLandmarks(canvasCtx, landmarks, {color: '#FF0000', lineWidth: 2});
-  //   }
-  // }
-  // canvasCtx.restore();
 }
 
 const hands = new Hands({locateFile: (file) => {

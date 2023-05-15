@@ -6,7 +6,6 @@
 //Toxiclibs.js Library: http://haptic-data.com/toxiclibsjs/
 
 let canvas;
-let isLoadedBothHands = false;
 
 const { VerletPhysics2D, VerletParticle2D, VerletSpring2D } = toxi.physics2d;
 const { GravityBehavior } = toxi.physics2d.behaviors;
@@ -36,13 +35,13 @@ let particleGrabRadius = 30;
 let handParticles = [];
 
 function setup() {
-  let canvasWidth = window.innerWidth;
-  let canvasHeight = window.innerHeight;
+  // let canvasWidth = window.innerWidth;
+  // let canvasHeight = window.innerHeight;
   // let canvasWidth = 1920;
   // let canvasHeight = 1080;
   frameRate(60);
 
-  canvas = createCanvas(canvasWidth, canvasHeight);
+  canvas = createCanvas(window.innerWidth, window.innerHeight);
   canvas.id("canvas");
 
   colorMode(HSB, 255);
@@ -363,16 +362,7 @@ function drawSymmertricalFlower() {
   if (handParticles.length === 0) {
     addHandParticle(allLandmarkCoordinates);
   }
-  //console.log(handParticles.length);
 
-  // Create a repulsive force for the hand particles
-  // for (const handParticle of handParticles) {
-  //   const attraction = new toxi.physics2d.behaviors.AttractionBehavior(handParticle, 10, -0.2, 0);
-  //   // Apply repulsion to flower particles
-  //   for (let flowerParticle of particles) {
-  //     physics.addBehavior(attraction);
-  //   }
-  // }
   for (let i = 0; i < handParticles.length; i++) {
     handAttractions[i].attractor.set(handParticles[i].getPosition());
     // 将排斥力应用于花朵粒子
@@ -414,4 +404,8 @@ function drawSymmertricalFlower() {
       draggedParticle = null;
     }
   }
+}
+
+function windowResized(){
+  resizeCanvas(window.innerWidth, window.innerHeight);
 }
