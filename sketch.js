@@ -54,6 +54,7 @@ function setup() {
 
 function draw() {
   clear();
+  fill(0,10);
 
   //draw landmarks
   if (detections != undefined) {
@@ -276,7 +277,7 @@ function createSymmetricalFlower() {
     // Add inner spring -------------------------------------------------
     //if don't want the inner springs, comment out these
     for (let i = 1; i <= nPetals; i++) {
-      for (let offset = 6; offset <= nPetals / 2; offset++) {
+      for (let offset = nPetals/2-1; offset <= nPetals / 2; offset++) {
         const j = ((i + offset - 1) % nPetals) + 1;
         const spring = new VerletSpring2D(
           particles[i],
