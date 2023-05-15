@@ -20,6 +20,7 @@ html, body {
 #video {
   position: absolute;
   transform: rotateY(180deg);
+  fliter: 30px;
   top: 0;
   left: 0;
   width: 100%;

@@ -382,30 +382,55 @@ function drawSymmertricalFlower() {
   if (landmarkCoordinates[8] && landmarkCoordinates[4]) {
     const distance = calculateDistance(landmarkCoordinates[8], landmarkCoordinates[4]);
 
+    // if (distance < pinchThreshold) {
+    //   // The pinch action occurs
+    //   const midpoint = {
+    //     x: (landmarkCoordinates[8].x + landmarkCoordinates[4].x) / 2,
+    //     y: (landmarkCoordinates[8].y + landmarkCoordinates[4].y) / 2
+    //   };
+    //   fill(255, 0, 0);
+    //   noStroke();
+    //   ellipse(midpoint.x, midpoint.y, 20, 20);
+
+    //   for (let particle of particles) {
+    //     let d = dist(midpoint.x, midpoint.y, particle.x, particle.y);
+    //     if (d < particleGrabRadius) {
+    //       draggedParticle = particle;
+    //       draggedParticle.set(midpoint.x, midpoint.y,);
+    //       //break;
+    //     }
+    //   }
+    // } 
+    // else {
+    //   draggedParticle = null;
+    // }
+
     if (distance < pinchThreshold) {
       // The pinch action occurs
       const midpoint = {
         x: (landmarkCoordinates[8].x + landmarkCoordinates[4].x) / 2,
         y: (landmarkCoordinates[8].y + landmarkCoordinates[4].y) / 2
       };
+
       fill(255, 0, 0);
       noStroke();
       ellipse(midpoint.x, midpoint.y, 20, 20);
-
-      for (let particle of particles) {
-        let d = dist(midpoint.x, midpoint.y, particle.x, particle.y);
-        if (d < particleGrabRadius) {
-          draggedParticle = particle;
-          draggedParticle.set(midpoint.x, midpoint.y,);
-          //break;
-        }
-      }
-    } else {
-      draggedParticle = null;
+      particles[1].lock();
+      particles[1].x = midpoint.x;
+      particles[1].y = midpoint.y;
+      particles[1].unlock();
     }
   }
 }
 
 function windowResized(){
   resizeCanvas(window.innerWidth, window.innerHeight);
+}
+
+function keyPressed(){
+  //press the space to reload
+  if(keyCode === 32){
+    location.reload();
+  }
+  
 }
