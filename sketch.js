@@ -30,7 +30,7 @@ const associatedVertices = Array.from({ length: 16 }, (_, i) => i);
 //flower
 let draggedParticle = null;
 let centerParticle;
-let particleGrabRadius = 300;
+let particleGrabRadius = 500;
 
 let handParticles = [];
 
