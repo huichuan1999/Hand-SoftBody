@@ -20,7 +20,10 @@ html, body {
 #video {
   position: absolute;
   transform: rotateY(180deg);
-  fliter: 30px;
+  /* filter: blur(3px); */
+  /* filter:invert(.8); */
+  /* filter:saturate(.7); */
+  /* filter:sepia(100%); */
   top: 0;
   left: 0;
   width: 100%;
