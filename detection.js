@@ -26,8 +26,8 @@ const hands = new Hands({locateFile: (file) => {
   return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
 }});
 hands.setOptions({
-  maxNumHands: 2,
-  modelComplexity: 1,
+  maxNumHands: 1, // the max number of hands
+  modelComplexity: 1, //maybe change to 0
   minDetectionConfidence: 0.5,
   minTrackingConfidence: 0.5
 });
@@ -39,7 +39,7 @@ const camera = new Camera(videoElement, {
   },
   // width: 1920,
   // height: 1080 
-  width: window.innerWidth/4,
-  height: window.innerHeight/4
+  width: window.innerWidth,
+  height: window.innerHeight
 });
 camera.start();

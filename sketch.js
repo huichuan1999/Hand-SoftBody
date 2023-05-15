@@ -38,6 +38,8 @@ let handParticles = [];
 function setup() {
   let canvasWidth = window.innerWidth;
   let canvasHeight = window.innerHeight;
+  // let canvasWidth = 1920;
+  // let canvasHeight = 1080;
   frameRate(60);
 
   canvas = createCanvas(canvasWidth, canvasHeight);
@@ -273,19 +275,19 @@ function createSymmetricalFlower() {
   }
     // Add inner spring -------------------------------------------------
     //if don't want the inner springs, comment out these
-    // for (let i = 1; i <= nPetals; i++) {
-    //   for (let offset = 6; offset <= nPetals / 2; offset++) {
-    //     const j = ((i + offset - 1) % nPetals) + 1;
-    //     const spring = new VerletSpring2D(
-    //       particles[i],
-    //       particles[j],
-    //       particles[i].distanceTo(particles[j]),
-    //       0.1
-    //     );
-    //     springs.push(spring);
-    //     physics.addSpring(spring);
-    //   }
-    // }
+    for (let i = 1; i <= nPetals; i++) {
+      for (let offset = 6; offset <= nPetals / 2; offset++) {
+        const j = ((i + offset - 1) % nPetals) + 1;
+        const spring = new VerletSpring2D(
+          particles[i],
+          particles[j],
+          particles[i].distanceTo(particles[j]),
+          0.1
+        );
+        springs.push(spring);
+        physics.addSpring(spring);
+      }
+    }
     //-------------------------------------------------------------------
   let lastSpring = new VerletSpring2D(particles[1], particles[nPetals], 2 * radius * sin(angleStep / 2), 0.1);
   springs.push(lastSpring);
