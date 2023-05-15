@@ -30,7 +30,7 @@ const associatedVertices = Array.from({ length: 16 }, (_, i) => i);
 //flower
 let draggedParticle = null;
 let centerParticle;
-let particleGrabRadius = 30;
+let particleGrabRadius = 300;
 
 let handParticles = [];
 
@@ -415,10 +415,14 @@ function drawSymmertricalFlower() {
       fill(255, 0, 0);
       noStroke();
       ellipse(midpoint.x, midpoint.y, 20, 20);
-      particles[1].lock();
-      particles[1].x = midpoint.x;
-      particles[1].y = midpoint.y;
-      particles[1].unlock();
+
+      let d = dist(midpoint.x, midpoint.y, particles[1].x, particles[1].y);
+        if (d < particleGrabRadius) {
+           particles[1].lock();
+           particles[1].x = midpoint.x;
+           particles[1].y = midpoint.y;
+           particles[1].unlock();
+        }
     }
   }
 }
