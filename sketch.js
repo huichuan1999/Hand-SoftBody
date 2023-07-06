@@ -297,7 +297,7 @@ function createSymmetricalFlower() {
   const stepDirection = new toxi.geom.Vec2D(1, 1).normalizeTo(20);
 
   for (let i = 0; i < associatedVertices.length; i++) {
-    const particleString = new ParticleString(physicTail, new toxi.geom.Vec2D(), stepDirection, random(50, 100), 1, 0.5);
+    const particleString = new ParticleString(physicTail, new toxi.geom.Vec2D(), stepDirection, random(30, 60), 1, 0.5);
     particleString.particles[0].lock();
     tail = particleString.particles[particleString.particles.length - 1];
     particleStrings.push(particleString);
@@ -363,13 +363,38 @@ function drawSymmertricalFlower() {
     addHandParticle(allLandmarkCoordinates);
   }
 
-  for (let i = 0; i < handParticles.length; i++) {
-    handAttractions[i].attractor.set(handParticles[i].getPosition());
-    // 将排斥力应用于花朵粒子
-      physics.addBehavior(handAttractions[i]);
-  }
-  
-  
+  // for (let i = 0; i < handParticles.length; i++) {
+  //   handAttractions[i].attractor.set(handParticles[i].getPosition());
+  //   // 将排斥力应用于花朵粒子
+  //     physics.addBehavior(handAttractions[i]);
+  // }
+
+  //console.log(frameRate());//keep an eye on framerate number, a good clue about performance, even better, print it to the sreen using the p5 text() 
+
+    for (let i = 0; i < handParticles.length; i++) {
+     
+      // 将排斥力应用于花朵粒子
+      //there is maybe a better place and time to do this but it was looking like there were
+      //19 handparticles so we only really want 19 physcis behaviors,
+      //
+      if(physics.behaviors.length < 19){
+        handAttractions[i].attractor.set(handParticles[i].getPosition());
+        handAttractions[i].strength = -20;//increase the strength because it was -0.5 so it's too small for each attractor to have an impact.
+        physics.addBehavior(handAttractions[i]);
+      }else{
+        //comment out the line below, and you will see that while it's running, as long as the hand
+        //is tracking the first time, the physcis behaviors work until the tracking of the hand is lost
+//This is because in the if statement before it is enough to only say once, hey I want to set this hand particle as the attractor for my behaviour
+        // so you could maybe make this even more efficient if you only do this bit every time the hand is first tracked
+        // AFTER you lose tracking of the hand. you will need to investigate your hand tracking library
+        handAttractions[i].attractor.set(handParticles[i].getPosition());
+
+      }
+       
+    }
+  // console.log(physics.behaviors, physics);
+  //make sure this stays as the number of landmarks you have in your hand. Uncomment this before making changes to see that the behaviours keep increasing over time like in the image!
+
   
 
   physics.update();
