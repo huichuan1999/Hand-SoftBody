@@ -41,7 +41,7 @@ function addHandParticle(landmarkCoordinates) {
       handParticles.push(handParticle);
 
       // 创建 AttractionBehavior 对象并添加到 handAttractions 数组中
-      const attraction = new toxi.physics2d.behaviors.AttractionBehavior(handParticle, 30, -0.5, 0);
+      const attraction = new toxi.physics2d.behaviors.AttractionBehavior(handParticle, 30, -20, 0);
       handAttractions.push(attraction);
     }
   }
